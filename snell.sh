@@ -99,7 +99,7 @@ Set_port(){
 		if [[ $? -eq 0 ]]; then
 			if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
 				echo && echo "========================"
-				echo -e "          ${BLUE}已设置端口${PLAIN}"
+				echo -e "       ${BLUE}已设置端口${PLAIN}"
 				echo "========================" && echo
 				break
 			else
@@ -122,7 +122,7 @@ Set_psk(){
 			[[ ${#PSK} != 31 ]] && echo -e "请输入正确的密匙（31位字符）。" && continue
 		fi
 		echo && echo "========================"
-		echo -e "          ${BLUE}已设置密钥${PLAIN}"
+		echo -e "       ${BLUE}已设置密钥${PLAIN}"
 		echo "========================" && echo
 		break
 	done
