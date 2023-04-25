@@ -164,6 +164,7 @@ EOF
 
 Install_snell(){
 	selectversion
+	Install_dependency
 	Generate_conf
 	Download_snell
 	Write_config
@@ -233,7 +234,6 @@ Change_snell_info(){
 
 check_sys
 menu() {
-        Install_dependency
 	clear
 	echo "################################################"
 	echo -e "#              ${RED}Snell一键安装脚本${PLAIN}               #"
