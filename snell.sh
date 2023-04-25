@@ -3,12 +3,18 @@
 
 RED="\033[31m"
 GREEN="\033[32m"
+YELLOW="\033[33m"
 BLUE="\033[36m"
 PLAIN='\033[0m'
 
 IP=`curl -sL -4 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
+
+version=(
+v3.0.1
+v4.0.1
+)
 
 colorEcho() {
     echo -e "${1}${@:2}${PLAIN}"
@@ -51,11 +57,31 @@ if [[ ${release} == "centos" ]]; then
 fi
 }
 
+selectversion() {
+	for ((i=1;i<=${#version[@]};i++ )); do
+		hint="${version[$i-1]}"
+		echo -e "${green}${i}${plain}) ${hint}"
+	done
+	echo -e "${YELLOW}仅v3向下兼容,且仅v3/v4支持uot${PLAIN}"
+	read -p "选择版本(默认: ${version[0]}):" pick
+	[ -z "$pick" ] && pick=1
+	expr ${pick} + 1 &>/dev/null
+	if [ $? -ne 0 ]; then
+		echo -e "[${red}Error${plain}] Please enter a number"
+		continue
+	fi
+	if [[ "$pick" -lt 1 || "$pick" -gt ${#version[@]} ]]; then
+		echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#version[@]}"
+		continue
+	fi
+	VER=${version[$pick-1]}
+}
+
 Download_snell(){
-	rm -rf 
+	rm -rf /etc/snell /tmp/snell
 	mkdir -p /etc/snell /tmp/snell
 	archAffix
-	DOWNLOAD_LINK="https://raw.githubusercontent.com/Slotheve/Snell-v3/main/snell-server-linux-${CPU}.zip"
+	DOWNLOAD_LINK="https://raw.githubusercontent.com/Slotheve/Snell-v3/main/snell-server-${VER}-linux-${CPU}.zip"
 	colorEcho $BLUE " 下载Snell: ${DOWNLOAD_LINK}"
 	curl -L -H "Cache-Control: no-cache" -o /tmp/snell/snell.zip ${DOWNLOAD_LINK}
 	unzip /tmp/snell/snell.zip -d /tmp/snell/
@@ -137,6 +163,7 @@ EOF
 }
 
 Install_snell(){
+	selectversion
 	Generate_conf
 	Download_snell
 	Write_config
@@ -163,8 +190,8 @@ Uninstall_snell(){
 	systemctl stop snell
 	systemctl disable snell
 	rm -rf /etc/systemd/snell.service
-	systemctl daemon-reload
 	rm -rf /etc/snell
+	systemctl daemon-reload
 	echo "snell已经卸载完毕"
 }
 
@@ -182,11 +209,16 @@ GetConfig() {
 }
 
 outputSnell() {
+	if [[ "$VER" = "v3.0.1" ]]; then
+		VER="≤ 3"
+	else
+		VER="4"
+	fi
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
 	echo -e "   ${BLUE}IP(address): ${PLAIN} ${RED}${IP}${PLAIN}"
 	echo -e "   ${BLUE}端口(port)：${PLAIN} ${RED}${port}${PLAIN}"
 	echo -e "   ${BLUE}密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
-	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}v1/v2/v3${PLAIN}"
+	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${VER}${PLAIN}"
 }
 
 Change_snell_info(){
