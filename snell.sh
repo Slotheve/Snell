@@ -49,6 +49,40 @@ check_sys(){
 	#bit=`uname -m`
 }
 
+status() {
+    if [[ ! -f /etc/snell/snell ]]; then
+        echo 0
+        return
+    fi
+    if [[ ! -f $snell_conf ]]; then
+        echo 1
+        return
+    fi
+    tmp=`grep 0.0.0.0: $snell_conf | cut -d: -f2 | tr -d \",' '`
+    res=`ss -nutlp| grep ${tmp} | grep -i snell`
+    if [[ -z "$res" ]]; then
+		echo 2
+	else
+		echo 3
+		return
+    fi
+}
+
+statusText() {
+    res=`status`
+    case $res in
+        2)
+            echo -e ${GREEN}已安装${PLAIN} ${RED}未运行${PLAIN}
+            ;;
+        3)
+            echo -e ${GREEN}已安装${PLAIN} ${GREEN}正在运行${PLAIN}
+            ;;
+        *)
+            echo -e ${RED}未安装${PLAIN}
+            ;;
+    esac
+}
+
 Install_dependency(){
 if [[ ${release} == "centos" ]]; then
 			yum install unzip wget -y
@@ -239,7 +273,6 @@ menu() {
 	echo -e "#              ${RED}Snell一键安装脚本${PLAIN}               #"
 	echo -e "#         ${GREEN}作者${PLAIN}: 怠惰(Slotheve)                 #"
 	echo -e "#         ${GREEN}网址${PLAIN}: https://slotheve.com           #"
-	echo -e "#         ${GREEN}论坛${PLAIN}: https://slotheve.com           #"
 	echo -e "#         ${GREEN}TG群${PLAIN}: https://t.me/slotheve          #"
 	echo "################################################"
 	echo " -------------"
@@ -254,6 +287,8 @@ menu() {
 	echo -e "  ${GREEN}7.${PLAIN}  修改Snell配置"
 	echo " -------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
+	echo -n " 当前状态："
+	statusText
 	echo 
 
 	read -p " 请选择操作[0-8]：" answer
