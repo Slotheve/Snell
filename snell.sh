@@ -287,6 +287,7 @@ menu() {
 	echo -e "  ${GREEN}7.${PLAIN}  修改Snell配置"
 	echo " -------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
+	echo ""
 	echo -n " 当前状态："
 	statusText
 	echo 
