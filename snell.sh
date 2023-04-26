@@ -193,6 +193,7 @@ Write_config(){
 [snell-server]
 listen = 0.0.0.0:${PORT}
 psk = ${PSK}
+# $VER
 EOF
 }
 
@@ -241,19 +242,20 @@ ShowInfo() {
 GetConfig() {
 	port=`grep 0.0.0.0: $snell_conf | cut -d: -f2 | tr -d \",' '`
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
+	ver=`grep # ${snell_conf} | awk -F '# ' '{print $2}'`
 }
 
 outputSnell() {
-	if [[ "$VER" = "v3.0.1" ]]; then
-		VER="≤ 3"
+	if [[ "$ver" = "v3.0.1" ]]; then
+		ver="≤ 3"
 	else
-		VER="4"
+		ver="4"
 	fi
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
 	echo -e "   ${BLUE}IP(address): ${PLAIN} ${RED}${IP}${PLAIN}"
 	echo -e "   ${BLUE}端口(port)：${PLAIN} ${RED}${port}${PLAIN}"
 	echo -e "   ${BLUE}密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
-	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${VER}${PLAIN}"
+	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
 }
 
 Change_snell_info(){
