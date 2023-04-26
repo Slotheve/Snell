@@ -241,7 +241,7 @@ ShowInfo() {
 GetConfig() {
 	port=`grep 0.0.0.0: $snell_conf | cut -d: -f2 | tr -d \",' '`
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
-	ver=`grep # ${snell_conf} | awk -F '# ' '{print $2}'`
+	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
 }
 
 outputSnell() {
