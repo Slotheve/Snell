@@ -105,7 +105,7 @@ selectversion() {
 		continue
 	fi
 	if [[ "$pick" -lt 1 || "$pick" -gt ${#version[@]} ]]; then
-		echo -e "[${RED}Error${PLAIN}] 请选择 1 或 ${#version[@]}"
+		echo -e "${BLUE}[${PLAIN}${RED}Error${PLAIN}${BLUE}] 请选择 1 或 ${#version[@]}${PLAIN}"
 		exit 0
 	fi
 	VER=${version[$pick-1]}
