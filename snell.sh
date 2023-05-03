@@ -106,6 +106,7 @@ selectversion() {
 	fi
 	if [[ "$pick" -lt 1 || "$pick" -gt ${#version[@]} ]]; then
 		echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#version[@]}"
+		exit 0
 	fi
 	VER=${version[$pick-1]}
 }
