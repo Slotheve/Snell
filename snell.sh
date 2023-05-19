@@ -260,6 +260,7 @@ outputSnell() {
 
 Change_snell_info(){
 	echo -e "修改 snell 配置信息"
+	selectversion
 	Set_port
 	Set_psk
 	Write_config
