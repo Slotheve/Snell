@@ -247,9 +247,9 @@ GetConfig() {
 
 outputSnell() {
 	if [[ "$ver" = "v3.0.1" ]]; then
-		ver="≤ 3"
+		ver="v3"
 	else
-		ver="4"
+		ver="v4"
 	fi
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
 	echo -e "   ${BLUE}IP(address): ${PLAIN} ${RED}${IP}${PLAIN}"
