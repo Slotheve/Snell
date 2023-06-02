@@ -30,23 +30,38 @@ archAffix(){
 	fi
 }
 
-check_sys(){
-	if [[ -f /etc/redhat-release ]]; then
-		release="centos"
-	elif cat /etc/issue | grep -q -E -i "debian"; then
-		release="debian"
-	elif cat /etc/issue | grep -q -E -i "ubuntu"; then
-		release="ubuntu"
-	elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
-		release="centos"
-	elif cat /proc/version | grep -q -E -i "debian"; then
-		release="debian"
-	elif cat /proc/version | grep -q -E -i "ubuntu"; then
-		release="ubuntu"
-	elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
-		release="centos"
+checkSystem() {
+    result=$(id | awk '{print $1}')
+    if [[ $result != "uid=0(root)" ]]; then
+        result=$(id | awk '{print $1}')
+	if [[ $result != "用户id=0(root)" ]]; then
+        colorEcho $RED " 请以root身份执行该脚本"
+        exit 1
+	fi
     fi
-	#bit=`uname -m`
+
+    res=`which yum 2>/dev/null`
+    if [[ "$?" != "0" ]]; then
+        res=`which apt 2>/dev/null`
+        if [[ "$?" != "0" ]]; then
+            colorEcho $RED " 不受支持的Linux系统"
+            exit 1
+        fi
+        PMT="apt"
+        CMD_INSTALL="apt install -y "
+        CMD_REMOVE="apt remove -y "
+        CMD_UPGRADE="apt update; apt upgrade -y; apt autoremove -y"
+    else
+        PMT="yum"
+        CMD_INSTALL="yum install -y "
+        CMD_REMOVE="yum remove -y "
+        CMD_UPGRADE="yum update -y"
+    fi
+    res=`which systemctl 2>/dev/null`
+    if [[ "$?" != "0" ]]; then
+        colorEcho $RED " 系统版本过低，请升级到最新版本"
+        exit 1
+    fi
 }
 
 status() {
@@ -269,7 +284,7 @@ Change_snell_info(){
 	ShowInfo
 }
 
-check_sys
+checkSystem
 menu() {
 	clear
 	echo "###############################"
