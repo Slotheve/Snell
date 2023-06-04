@@ -89,14 +89,14 @@ statusText() {
 
 Install_dependency(){
 if [[ ${release} == "centos" ]]; then
+	echo ""
+	colorEcho $YELLOW "安装依赖中..."
 	yum install unzip wget -y >/dev/null 2>&1
 	echo ""
-	colorEcho $YELLOW "安装依赖中..."
-	echo ""
 else
-	apt install unzip wget -y >/dev/null 2>&1
 	echo ""
 	colorEcho $YELLOW "安装依赖中..."
+	apt install unzip wget -y >/dev/null 2>&1
 	echo ""
 fi
 }
