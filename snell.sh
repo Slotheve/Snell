@@ -167,13 +167,15 @@ Deploy_snell(){
 }
 
 Set_V6(){
-	read -p " 是否开启V6？[y/n]：" answer
+	read -p "是否开启V6？[y/n]：" answer
 	if [[ "${answer,,}" = "y" ]]; then
+		colorEcho $BLUE "启用V6"
 		V6="true"
 	elif [[ "${answer,,}" = "n" ]]; then
+		colorEcho $BLUE "禁用V6"
 		V6="false"
 	else
-		echo "输入错误, 请输入正确操作。"
+		colorEcho $RED "输入错误, 请输入正确操作。"
 		exit
 	fi
 }
@@ -187,34 +189,26 @@ Set_port(){
 		echo $((${PORT}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
-				echo && echo "========================"
-				echo -e "       ${BLUE}已设置端口${PLAIN}"
-				echo "========================" && echo
-				break
+				colorEcho $BLUE "端口: ${PORT}"
 			else
-				echo "输入错误, 请输入正确的端口。"
+				colorEcho $RED "输入错误, 请输入正确的端口。"
 			fi
 		else
-			echo "输入错误, 请输入正确的端口。"
+			colorEcho $RED "输入错误, 请输入正确的端口。"
 		fi
 		done
 }
 
 Set_psk(){
-	while true
-		do
-		echo "请输入 Snell psk（建议随机生成）"
-		read -e -p "(避免出错，强烈推荐随机生成，直接回车):" PSK
-		if [[ -z "${PSK}" ]]; then
-			PSK=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 31)
-		else
-			[[ ${#PSK} != 31 ]] && echo -e "请输入正确的密匙（31位字符）。" && continue
-		fi
-		echo && echo "========================"
-		echo -e "       ${BLUE}已设置密钥${PLAIN}"
-		echo "========================" && echo
-		break
-	done
+	echo "请输入 Snell psk（建议随机生成）"
+	read -e -p "(避免出错，强烈推荐随机生成，直接回车):" PSK
+	if [[ -z "${PSK}" ]]; then
+		PSK=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 31)
+	elif [[ ${#PSK} != 31 ]]
+		colorEcho $RED "请输入正确的密匙（31位字符）。"
+		exit
+	fi
+	colorEcho $BLUE "PSK: ${PSK}"
 }
 
 Set_obfs(){
@@ -222,26 +216,24 @@ Set_obfs(){
 	if [[ "${answer,,}" = "y" ]]; then
 		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
 		if [[  -z "${OBFS}" ]]; then
-			echo && echo "========================"
-			echo -e "	obfs : ${OBFS} "
-			echo "========================" && echo
-			obfs="true"
+			colorEcho $BLUE "obfs: ${OBFS}"
 		else
 			echo "输入错误, 请输入正确操作。"
 			exit
 		fi
 	elif [[ "${answer,,}" = "n" ]]; then
-		obfs="false"
+		OBFS="false"
+		colorEcho $BLUE "禁用obfs"
 	fi
 }
 
 Write_config(){
 	cat > ${snell_conf}<<-EOF
 [snell-server]
-listen = 0.0.0.0:${PORT}
+listen = ${IP}:${PORT}
 psk = ${PSK}
 ipv6 = ${V6}
-obfs = ${obfs}
+obfs = ${OBFS}
 # $VER
 EOF
 }
@@ -279,11 +271,11 @@ Uninstall_snell(){
 		rm -rf /etc/systemd/snell.service
 		rm -rf /etc/snell
 		systemctl daemon-reload
-		echo "snell已经卸载完毕"
+		colorEcho $BLUE "snell已经卸载完毕"
 	elif [[ "${answer,,}" = "n" ]]; then
-		echo "取消卸载"
+		colorEcho $BLUE "取消卸载"
 	else
-		echo "输入错误, 请输入正确操作。"
+		colorEcho $RED "输入错误, 请输入正确操作。"
 		exit
 	fi
 }
@@ -297,17 +289,17 @@ ShowInfo() {
 }
 
 GetConfig() {
-	port=`grep 0.0.0.0: $snell_conf | cut -d: -f2 | tr -d \",' '`
+	port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
+	if [[ -z "${port}" ]]; then
+		port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
+	fi
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
-	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
+	psk=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+	psk=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
+	ver=`/etc/snell/snell -version | grep 'version' | awk -F ':' '{print $2}'`
 }
 
 outputSnell() {
-	if [[ "$ver" = "v3.0.1" ]]; then
-		ver="v3"
-	else
-		ver="v4"
-	fi
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
 	echo -e "   ${BLUE}IP(address): ${PLAIN} ${RED}${IP}${PLAIN}"
 	echo -e "   ${BLUE}端口(port)：${PLAIN} ${RED}${port}${PLAIN}"
@@ -316,13 +308,13 @@ outputSnell() {
 }
 
 Change_snell_info(){
-	echo -e "修改 snell 配置信息"
+	colorEcho $BLUE "修改 snell 配置信息"
 	selectversion
 	Set_port
 	Set_psk
 	Write_config
 	Restart_snell
-	colorEcho $RED "修改配置成功"
+	colorEcho $BLUE "修改配置成功"
 	ShowInfo
 }
 
@@ -384,15 +376,4 @@ menu() {
 			;;
 	esac
 }
-
-action=$1
-[[ -z $1 ]] && action=menu
-case "$action" in
-	menu|Uninstall_snell|Start_snell|Restart_snell|Stop_snell|ShowInfo|Change_snell_info)
-		${action}
-		;;
-	*)
-		echo " 参数错误"
-		echo " 用法: `basename $0` [menu|Uninstall_snell|Start_snell|Restart_snell|Stop_snell|ShowInfo|Change_snell_info]"
-		;;
-esac
+menu
