@@ -123,6 +123,7 @@ selectversion() {
 		echo -e "${BLUE}[${PLAIN}${RED}Error${PLAIN}${BLUE}] 请选择 1 或 ${#version[@]}${PLAIN}"
 		exit 0
 	fi
+	colorEcho $BLUE "版本: ${version[$pick-1]}"
 	VER=${version[$pick-1]}
 }
 
