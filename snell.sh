@@ -105,8 +105,12 @@ selectversion() {
 	read -p $'1. v3.0.1\n2. v4.0.1\n请选择版本 [1/2]\n(默认v3.0.1, 回车)' NUM
 	if [[ "${NUM}" = "2" ]]; then
 		VER="v4.0.1"
-	else
+	elif [[ "${NUM}" = "1" || -z "${answer}" ]]; then
 		VER="v3.0.1"
+	else
+		colorEcho $RED "输入错误, 请输入 1/2"
+		echo ""
+		exit
 	fi
 	colorEcho $BLUE "版本: ${VER}"
 	echo ""
@@ -153,27 +157,24 @@ Deploy_snell(){
 }
 
 Set_V6(){
-	read -p "是否开启V6？[y/n]：" answer
+	read -p $'是否开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer,,}" = "y" ]]; then
 		colorEcho $BLUE "启用V6"
 		echo ""
 		V6="true"
 		LIP="[::]"
-	elif [[ "${answer,,}" = "n" ]]; then
+	elif [[ "${answer,,}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE "禁用V6"
 		echo ""
 		V6="false"
 		LIP="0.0.0.0"
 	else
-		colorEcho $RED "输入错误, 请输入正确操作。"
-		echo ""
-		exit
+		colorEcho $RED "输入错误, 请输入 y/n"
 	fi
 }
 
 Set_port(){
-	echo -e "请输入 Snell 端口 [1-65535]"
-	read -e -p "(默认: 6666，回车):" PORT
+	read -p $'请输入 Snell 端口 [1-65535]\n(默认: 6666，回车):' PORT
 	[[ -z "${PORT}" ]] && PORT="6666"
 	echo $((${PORT}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -185,14 +186,14 @@ Set_port(){
 			echo ""
 		fi
 	else
-		colorEcho $RED "输入错误, 请输入正确的端口。"
+		colorEcho $RED "输入错误, 请输入数字。"
 		echo ""
+		exit
 	fi
 }
 
 Set_psk(){
-	echo "请输入 Snell psk（建议随机生成）"
-	read -e -p "(避免出错，强烈推荐随机生成，直接回车):" PSK
+	read -p $'请输入 Snell psk (建议随机生成)\n(避免出错，强烈推荐随机生成，直接回车):' PSK
 	[[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
 	if [[ "${#PSK}" != 31 ]]; then
 		colorEcho $RED "请输入正确的密匙（31位字符）。"
@@ -204,21 +205,25 @@ Set_psk(){
 }
 
 Set_obfs(){
-	read -p "是否开启obfs？[y/n]：" answer
+	read -p $'是否开启obfs？[y/n]：\n(默认n, 回车)' answer
 	if [[ "${answer,,}" = "y" ]]; then
 		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
 		if [[ "${OBFS}" = "tls" || "${OBFS}" = "http" ]]; then
 			colorEcho $BLUE "obfs: ${OBFS}"
 			echo ""
 		else
-			echo "输入错误, 请输入正确操作。"
+			echo "错误, 请输入 http/tls"
 			echo ""
 			exit
 		fi
-	elif [[ "${answer,,}" = "n" ]]; then
+	elif [[ "${answer,,}" = "n" || -z "${answer}" ]]; then
 		OBFS="none"
 		colorEcho $BLUE "禁用obfs"
 		echo ""
+	else
+		echo "错误, 请输入 y/n"
+		echo ""
+		exit
 	fi
 }
 
@@ -259,7 +264,7 @@ Restart_snell(){
 }
 
 Uninstall_snell(){
-	read -p " 是否卸载Snell？[y/n]：" answer
+	read -p $' 是否卸载Snell？[y/n]：\n (默认n, 回车)' answer
 	if [[ "${answer,,}" = "y" ]]; then
 		systemctl stop snell
 		systemctl disable snell
@@ -267,7 +272,7 @@ Uninstall_snell(){
 		rm -rf /etc/snell
 		systemctl daemon-reload
 		colorEcho $BLUE " Snell已经卸载完毕"
-	elif [[ "${answer,,}" = "n" ]]; then
+	elif [[ "${answer,,}" = "n" || -z "${answer} }]]; then
 		colorEcho $BLUE " 取消卸载"
 	else
 		colorEcho $RED " 输入错误, 请输入正确操作。"
