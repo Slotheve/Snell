@@ -110,7 +110,7 @@ selectversion() {
 	else
 		colorEcho $RED "输入错误, 请输入 1/2"
 		echo ""
-		exit
+		exit 1
 	fi
 	colorEcho $BLUE "版本: ${VER}"
 	echo ""
@@ -170,6 +170,7 @@ Set_V6(){
 		LIP="0.0.0.0"
 	else
 		colorEcho $RED "输入错误, 请输入 y/n"
+		exit 1
 	fi
 }
 
@@ -188,7 +189,7 @@ Set_port(){
 	else
 		colorEcho $RED "输入错误, 请输入数字。"
 		echo ""
-		exit
+		exit 1
 	fi
 }
 
@@ -198,7 +199,7 @@ Set_psk(){
 	if [[ "${#PSK}" != 31 ]]; then
 		colorEcho $RED "请输入正确的密匙（31位字符）。"
 		echo ""
-		exit
+		exit 1
 	fi
 	colorEcho $BLUE "PSK: ${PSK}"
 	echo ""
@@ -214,7 +215,7 @@ Set_obfs(){
 		else
 			echo "错误, 请输入 http/tls"
 			echo ""
-			exit
+			exit 1
 		fi
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		OBFS="none"
@@ -223,7 +224,7 @@ Set_obfs(){
 	else
 		echo "错误, 请输入 y/n"
 		echo ""
-		exit
+		exit 1
 	fi
 }
 
@@ -276,7 +277,7 @@ Uninstall_snell(){
 		colorEcho $BLUE " 取消卸载"
 	else
 		colorEcho $RED " 输入错误, 请输入正确操作。"
-		exit
+		exit 1
 	fi
 }
 
