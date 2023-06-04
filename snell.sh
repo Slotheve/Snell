@@ -296,16 +296,18 @@ GetConfig() {
 		port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
 	fi
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
-	psk=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-	psk=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
+	ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+	obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
 	ver=`/etc/snell/snell -version | grep 'version' | awk -F ':' '{print $2}'`
 }
 
 outputSnell() {
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
-	echo -e "   ${BLUE}IP(address): ${PLAIN} ${RED}${IP}${PLAIN}"
-	echo -e "   ${BLUE}端口(port)：${PLAIN} ${RED}${port}${PLAIN}"
+	echo -e "   ${BLUE}地址(IP): ${PLAIN} ${RED}${IP}${PLAIN}"
+	echo -e "   ${BLUE}端口(PORT)：${PLAIN} ${RED}${port}${PLAIN}"
 	echo -e "   ${BLUE}密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
+	echo -e "   ${BLUE}网络(V6)：${PLAIN} ${RED}${ipv6}${PLAIN}"
+	echo -e "   ${BLUE}混淆(OBFS)：${PLAIN} ${RED}${obfs}${PLAIN}"
 	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
 }
 
