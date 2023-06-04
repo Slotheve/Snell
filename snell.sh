@@ -272,7 +272,7 @@ Uninstall_snell(){
 		rm -rf /etc/snell
 		systemctl daemon-reload
 		colorEcho $BLUE " Snell已经卸载完毕"
-	elif [[ "${answer,,}" = "n" || -z "${answer} }]]; then
+	elif [[ "${answer,,}" = "n" || -z "${answer}" }]]; then
 		colorEcho $BLUE " 取消卸载"
 	else
 		colorEcho $RED " 输入错误, 请输入正确操作。"
