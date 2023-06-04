@@ -135,7 +135,7 @@ Download_snell(){
 	mkdir -p /etc/snell /tmp/snell
 	archAffix
 	DOWNLOAD_LINK="https://raw.githubusercontent.com/Slotheve/Snell/main/snell-server-${VER}-linux-${CPU}.zip"
-	colorEcho $BLUE " 下载Snell: ${DOWNLOAD_LINK}"
+	colorEcho $YELLOW "下载Snell: ${DOWNLOAD_LINK}"
 	curl -L -H "Cache-Control: no-cache" -o /tmp/snell/snell.zip ${DOWNLOAD_LINK}
 	unzip /tmp/snell/snell.zip -d /tmp/snell/
 	mv /tmp/snell/snell-server /etc/snell/snell
@@ -175,9 +175,11 @@ Set_V6(){
 	if [[ "${answer,,}" = "y" ]]; then
 		colorEcho $BLUE "启用V6"
 		V6="true"
+		LIP="[::]"
 	elif [[ "${answer,,}" = "n" ]]; then
 		colorEcho $BLUE "禁用V6"
 		V6="false"
+		LIP="0.0.0.0"
 	else
 		colorEcho $RED "输入错误, 请输入正确操作。"
 		exit
@@ -230,7 +232,7 @@ Set_obfs(){
 Write_config(){
 	cat > ${snell_conf}<<-EOF
 [snell-server]
-listen = ${IP}:${PORT}
+listen = ${LIP}:${PORT}
 psk = ${PSK}
 ipv6 = ${V6}
 obfs = ${OBFS}
