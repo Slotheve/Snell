@@ -73,7 +73,10 @@ status() {
         echo 1
         return
     fi
-    tmp=`grep 0.0.0.0: $snell_conf | cut -d: -f2 | tr -d \",' '`
+    tmp=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
+    if [[ -z "${tmp}" ]]; then
+        port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
+    fi
     res=`ss -nutlp| grep ${tmp} | grep -i snell`
     if [[ -z "$res" ]]; then
 		echo 2
