@@ -208,7 +208,7 @@ Set_psk(){
 }
 
 Set_obfs(){
-	read -p " 是否开启obfs？[y/n]：" answer
+	read -p "是否开启obfs？[y/n]：" answer
 	if [[ "${answer,,}" = "y" ]]; then
 		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
 		if [[  -z "${OBFS}" ]]; then
