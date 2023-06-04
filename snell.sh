@@ -139,8 +139,10 @@ Download_snell(){
 }
 
 Generate_conf(){
+	Set_V6
 	Set_port
 	Set_psk
+	Set_obfs
 }
 
 
@@ -162,6 +164,18 @@ Deploy_snell(){
 	systemctl restart snell
 	systemctl enable snell.service
 	echo "snell已安装完毕并运行"
+}
+
+Set_V6(){
+	read -p " 是否开启V6？[y/n]：" answer
+	if [[ "${answer,,}" = "y" ]]; then
+		V6="true"
+	elif [[ "${answer,,}" = "n" ]]; then
+		V6="false"
+	else
+		echo "输入错误, 请输入正确操作。"
+		exit
+	fi
 }
 
 Set_port(){
@@ -203,11 +217,31 @@ Set_psk(){
 	done
 }
 
+Set_obfs(){
+	read -p " 是否开启obfs？[y/n]：" answer
+	if [[ "${answer,,}" = "y" ]]; then
+		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
+		if [[  -z "${OBFS}" ]]; then
+			echo && echo "========================"
+			echo -e "	obfs : ${OBFS} "
+			echo "========================" && echo
+			obfs="true"
+		else
+			echo "输入错误, 请输入正确操作。"
+			exit
+		fi
+	elif [[ "${answer,,}" = "n" ]]; then
+		obfs="false"
+	fi
+}
+
 Write_config(){
 	cat > ${snell_conf}<<-EOF
 [snell-server]
 listen = 0.0.0.0:${PORT}
 psk = ${PSK}
+ipv6 = ${V6}
+obfs = ${obfs}
 # $VER
 EOF
 }
@@ -238,12 +272,20 @@ Restart_snell(){
 }
 
 Uninstall_snell(){
-	systemctl stop snell
-	systemctl disable snell
-	rm -rf /etc/systemd/snell.service
-	rm -rf /etc/snell
-	systemctl daemon-reload
-	echo "snell已经卸载完毕"
+	read -p " 是否卸载Snell？[y/n]：" answer
+	if [[ "${answer,,}" = "y" ]]; then
+		systemctl stop snell
+		systemctl disable snell
+		rm -rf /etc/systemd/snell.service
+		rm -rf /etc/snell
+		systemctl daemon-reload
+		echo "snell已经卸载完毕"
+	elif [[ "${answer,,}" = "n" ]]; then
+		echo "取消卸载"
+	else
+		echo "输入错误, 请输入正确操作。"
+		exit
+	fi
 }
 
 ShowInfo() {
