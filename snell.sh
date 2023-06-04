@@ -127,6 +127,7 @@ selectversion() {
 		exit 0
 	fi
 	colorEcho $BLUE "版本: ${version[$pick-1]}"
+	echo ""
 	VER=${version[$pick-1]}
 }
 
@@ -167,21 +168,24 @@ Deploy_snell(){
 	systemctl start snell
 	systemctl restart snell
 	systemctl enable snell.service
-	echo "snell已安装完毕并运行"
+	colorEcho $BLUE "Snell安装完成"
 }
 
 Set_V6(){
 	read -p "是否开启V6？[y/n]：" answer
 	if [[ "${answer,,}" = "y" ]]; then
 		colorEcho $BLUE "启用V6"
+		echo ""
 		V6="true"
 		LIP="[::]"
 	elif [[ "${answer,,}" = "n" ]]; then
 		colorEcho $BLUE "禁用V6"
+		echo ""
 		V6="false"
 		LIP="0.0.0.0"
 	else
 		colorEcho $RED "输入错误, 请输入正确操作。"
+		echo ""
 		exit
 	fi
 }
@@ -194,11 +198,14 @@ Set_port(){
 	if [[ $? -eq 0 ]]; then
 		if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
 			colorEcho $BLUE "端口: ${PORT}"
+			echo ""
 		else
 			colorEcho $RED "输入错误, 请输入正确的端口。"
+			echo ""
 		fi
 	else
 		colorEcho $RED "输入错误, 请输入正确的端口。"
+		echo ""
 	fi
 }
 
@@ -208,9 +215,11 @@ Set_psk(){
 	[[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
 	if [[ "${#PSK}" != 31 ]]; then
 		colorEcho $RED "请输入正确的密匙（31位字符）。"
+		echo ""
 		exit
 	fi
 	colorEcho $BLUE "PSK: ${PSK}"
+	echo ""
 }
 
 Set_obfs(){
@@ -219,13 +228,16 @@ Set_obfs(){
 		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
 		if [[ "${OBFS}" = "tls" || "${OBFS}" = "http" ]]; then
 			colorEcho $BLUE "obfs: ${OBFS}"
+			echo ""
 		else
 			echo "输入错误, 请输入正确操作。"
+			echo ""
 			exit
 		fi
 	elif [[ "${answer,,}" = "n" ]]; then
-		OBFS="false"
+		OBFS="none"
 		colorEcho $BLUE "禁用obfs"
+		echo ""
 	fi
 }
 
@@ -252,17 +264,17 @@ Install_snell(){
 
 Start_snell(){
 	systemctl start snell
-	colorEcho $BLUE "snell已启动"
+	colorEcho $BLUE " Snell已启动"
 }
 
 Stop_snell(){
 	systemctl stop snell
-	colorEcho $BLUE "snell已停止"
+	colorEcho $BLUE " Snell已停止"
 }
 
 Restart_snell(){
 	systemctl restart snell
-	colorEcho $BLUE "snell已重启"
+	colorEcho $BLUE " Snell已重启"
 }
 
 Uninstall_snell(){
@@ -273,11 +285,11 @@ Uninstall_snell(){
 		rm -rf /etc/systemd/snell.service
 		rm -rf /etc/snell
 		systemctl daemon-reload
-		colorEcho $BLUE "snell已经卸载完毕"
+		colorEcho $BLUE " Snell已经卸载完毕"
 	elif [[ "${answer,,}" = "n" ]]; then
-		colorEcho $BLUE "取消卸载"
+		colorEcho $BLUE " 取消卸载"
 	else
-		colorEcho $RED "输入错误, 请输入正确操作。"
+		colorEcho $RED " 输入错误, 请输入正确操作。"
 		exit
 	fi
 }
@@ -312,13 +324,13 @@ outputSnell() {
 }
 
 Change_snell_info(){
-	colorEcho $BLUE "修改 snell 配置信息"
+	colorEcho $BLUE " 修改 Snell 配置信息"
 	selectversion
 	Set_port
 	Set_psk
 	Write_config
 	Restart_snell
-	colorEcho $BLUE "修改配置成功"
+	colorEcho $BLUE " 修改配置成功"
 	ShowInfo
 }
 
