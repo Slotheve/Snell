@@ -47,15 +47,6 @@ checkSystem() {
             colorEcho $RED " 不受支持的Linux系统"
             exit 1
         fi
-        PMT="apt"
-        CMD_INSTALL="apt install -y "
-        CMD_REMOVE="apt remove -y "
-        CMD_UPGRADE="apt update; apt upgrade -y; apt autoremove -y"
-    else
-        PMT="yum"
-        CMD_INSTALL="yum install -y "
-        CMD_REMOVE="yum remove -y "
-        CMD_UPGRADE="yum update -y"
     fi
     res=`which systemctl 2>/dev/null`
     if [[ "$?" != "0" ]]; then
@@ -103,9 +94,9 @@ statusText() {
 
 Install_dependency(){
 if [[ ${release} == "centos" ]]; then
-			yum install unzip wget -y
+			yum install unzip wget -y >/dev/null 2>&1
 		else
-			apt-get install unzip wget -y
+			apt-get install unzip wget -y >/dev/null 2>&1
 fi
 }
 
