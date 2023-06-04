@@ -181,22 +181,19 @@ Set_V6(){
 }
 
 Set_port(){
-	while true
-		do
-		echo -e "请输入 Snell 端口 [1-65535]"
-		read -e -p "(默认: 6666，回车):" PORT
-		[[ -z "${PORT}" ]] && PORT="6666"
-		echo $((${PORT}+0)) &>/dev/null
-		if [[ $? -eq 0 ]]; then
-			if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
-				colorEcho $BLUE "端口: ${PORT}"
-			else
-				colorEcho $RED "输入错误, 请输入正确的端口。"
-			fi
+	echo -e "请输入 Snell 端口 [1-65535]"
+	read -e -p "(默认: 6666，回车):" PORT
+	[[ -z "${PORT}" ]] && PORT="6666"
+	echo $((${PORT}+0)) &>/dev/null
+	if [[ $? -eq 0 ]]; then
+		if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
+			colorEcho $BLUE "端口: ${PORT}"
 		else
 			colorEcho $RED "输入错误, 请输入正确的端口。"
 		fi
-		done
+	else
+		colorEcho $RED "输入错误, 请输入正确的端口。"
+	fi
 }
 
 Set_psk(){
