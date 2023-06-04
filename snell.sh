@@ -11,11 +11,6 @@ IP=`curl -sL -4 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
 
-version=(
-v3.0.1
-v4.0.1
-)
-
 colorEcho() {
     echo -e "${1}${@:2}${PLAIN}"
 }
@@ -105,25 +100,14 @@ fi
 }
 
 selectversion() {
-	for ((i=1;i<=${#version[@]};i++ )); do
-		hint="${version[$i-1]}"
-		echo -e "${green}${i}${plain}) ${hint}"
-	done
-	echo -e "${YELLOW}仅v3向下兼容,且仅v3/v4支持uot${PLAIN}"
-	read -p "选择版本(默认: ${version[0]}):" pick
-	[ -z "$pick" ] && pick=1
-	expr ${pick} + 1 &>/dev/null
-	if [ $? -ne 0 ]; then
-		echo -e "[${red}Error${plain}] Please enter a number"
-		continue
+	read -p $'1. v3.0.1\n2. v4.0.1\n请选择版本 [1/2]\n(默认v3.0.1, 回车)' NUM
+	if [[ "${NUM}" = "2" ]]; then
+		VER="v4.0.1"
+	else
+		VER="v3.0.1"
 	fi
-	if [[ "$pick" -lt 1 || "$pick" -gt ${#version[@]} ]]; then
-		echo -e "${BLUE}[${PLAIN}${RED}Error${PLAIN}${BLUE}] 请选择 1 或 ${#version[@]}${PLAIN}"
-		exit 0
-	fi
-	colorEcho $BLUE "版本: ${version[$pick-1]}"
+	colorEcho $BLUE "版本: ${VER}"
 	echo ""
-	VER=${version[$pick-1]}
 }
 
 Download_snell(){
