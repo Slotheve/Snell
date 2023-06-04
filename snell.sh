@@ -248,8 +248,8 @@ EOF
 }
 
 Install_snell(){
-	selectversion
 	Install_dependency
+	selectversion
 	Generate_conf
 	Download_snell
 	Write_config
@@ -318,7 +318,7 @@ outputSnell() {
 	echo -e "   ${BLUE}地址(IP): ${PLAIN} ${RED}${IP}${PLAIN}"
 	echo -e "   ${BLUE}端口(PORT)：${PLAIN} ${RED}${port}${PLAIN}"
 	echo -e "   ${BLUE}密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
-	echo -e "   ${BLUE}网络(V6)：${PLAIN} ${RED}${ipv6}${PLAIN}"
+	echo -e "   ${BLUE}IPV6：${PLAIN} ${RED}${ipv6}${PLAIN}"
 	echo -e "   ${BLUE}混淆(OBFS)：${PLAIN} ${RED}${obfs}${PLAIN}"
 	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
 }
@@ -326,8 +326,7 @@ outputSnell() {
 Change_snell_info(){
 	colorEcho $BLUE " 修改 Snell 配置信息"
 	selectversion
-	Set_port
-	Set_psk
+	Generate_conf
 	Write_config
 	Restart_snell
 	colorEcho $BLUE " 修改配置成功"
