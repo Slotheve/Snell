@@ -105,7 +105,7 @@ selectversion() {
 	read -p $'1. v3.0.1\n2. v4.0.1\n请选择版本 [1/2]\n(默认v3.0.1, 回车)' NUM
 	if [[ "${NUM}" = "2" ]]; then
 		VER="v4.0.1"
-	elif [[ "${NUM}" = "1" || -z "${answer}" ]]; then
+	elif [[ "${NUM}" = "1" || -z "${NUM}" ]]; then
 		VER="v3.0.1"
 	else
 		colorEcho $RED "输入错误, 请输入 1/2"
@@ -158,12 +158,12 @@ Deploy_snell(){
 
 Set_V6(){
 	read -p $'是否开启V6？[y/n]\n(默认n, 回车)' answer
-	if [[ "${answer,,}" = "y" ]]; then
+	if [[ "${answer}" = "y" ]]; then
 		colorEcho $BLUE "启用V6"
 		echo ""
 		V6="true"
 		LIP="[::]"
-	elif [[ "${answer,,}" = "n" || -z "${answer}" ]]; then
+	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE "禁用V6"
 		echo ""
 		V6="false"
@@ -206,7 +206,7 @@ Set_psk(){
 
 Set_obfs(){
 	read -p $'是否开启obfs？[y/n]：\n(默认n, 回车)' answer
-	if [[ "${answer,,}" = "y" ]]; then
+	if [[ "${answer}" = "y" ]]; then
 		read -e -p "请输入 obfs 混淆 (tls/http)" OBFS
 		if [[ "${OBFS}" = "tls" || "${OBFS}" = "http" ]]; then
 			colorEcho $BLUE "obfs: ${OBFS}"
@@ -216,7 +216,7 @@ Set_obfs(){
 			echo ""
 			exit
 		fi
-	elif [[ "${answer,,}" = "n" || -z "${answer}" ]]; then
+	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		OBFS="none"
 		colorEcho $BLUE "禁用obfs"
 		echo ""
@@ -265,14 +265,14 @@ Restart_snell(){
 
 Uninstall_snell(){
 	read -p $' 是否卸载Snell？[y/n]：\n (默认n, 回车)' answer
-	if [[ "${answer,,}" = "y" ]]; then
+	if [[ "${answer}" = "y" ]]; then
 		systemctl stop snell
 		systemctl disable snell
 		rm -rf /etc/systemd/snell.service
 		rm -rf /etc/snell
 		systemctl daemon-reload
 		colorEcho $BLUE " Snell已经卸载完毕"
-	elif [[ "${answer,,}" = "n" || -z "${answer}" ]]; then
+	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE " 取消卸载"
 	else
 		colorEcho $RED " 输入错误, 请输入正确操作。"
