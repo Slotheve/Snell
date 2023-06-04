@@ -66,7 +66,7 @@ status() {
     fi
     tmp=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
     if [[ -z "${tmp}" ]]; then
-        port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
+        tmp=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
     fi
     res=`ss -nutlp| grep ${tmp} | grep -i snell`
     if [[ -z "$res" ]]; then
