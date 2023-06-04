@@ -310,7 +310,12 @@ GetConfig() {
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
 	ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
 	obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
-	ver=`/etc/snell/snell -version | grep 'version' | awk -F ':' '{print $2}'`
+	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
+	if [[ "$ver" = "v3.0.1" ]]; then
+		ver="v3"
+	else
+		ver="v4"
+	fi
 }
 
 outputSnell() {
