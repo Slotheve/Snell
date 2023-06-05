@@ -194,7 +194,7 @@ Set_port(){
 }
 
 Set_psk(){
-	read -p $'请输入 Snell psk (建议随机生成)\n(避免出错，强烈推荐随机生成，直接回车):' PSK
+	read -p $'请输入 Snell PSK 密钥\n(推荐随机生成，直接回车):' PSK
 	[[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
 	if [[ "${#PSK}" != 31 ]]; then
 		colorEcho $RED "请输入正确的密匙（31位字符）。"
