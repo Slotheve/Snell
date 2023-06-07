@@ -10,16 +10,26 @@ PLAIN='\033[0m'
 IP=`curl -sL -4 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
+STLS="false"
 
 colorEcho() {
     echo -e "${1}${@:2}${PLAIN}"
 }
 
+domains=(
+gateway.icloud.com
+cn.bing.com
+mp.weixin.qq.com
+自定义
+)
+
 archAffix(){
     if   [[ "$CPU" = "x86_64" ]] || [[ "$CPU" = "amd64" ]]; then
 		CPU="amd64"
+		ARCH="x86_64"
 	elif [[ "$CPU" = "armv8" ]] || [[ "$CPU" = "aarch64" ]]; then
 		CPU="arm64"
+		ARCH="aarch64"
 	else
 		colorEcho $RED " 不支持的CPU架构！"
 	fi
@@ -128,6 +138,16 @@ Download_snell(){
 	chmod +x /etc/snell/snell
 }
 
+Download_stls() {
+	archAffix
+	TAG_URL="https://api.github.com/repos/ihciah/shadow-tls/releases/latest"
+	DOWN_VER=`curl -s "${TAG_URL}" --connect-timeout 10| grep -Eo '\"tag_name\"(.*?)\",' | cut -d\" -f4`
+	DOWNLOAD_LINK="https://github.com/ihciah/shadow-tls/releases/download/${DOWN_VER}/shadow-tls-${ARCH}-unknown-linux-musl"
+	colorEcho $YELLOW "下载ShadowTLS: ${DOWNLOAD_LINK}"
+	curl -L -H "Cache-Control: no-cache" -o /etc/snell/shadowtls ${DOWNLOAD_LINK}
+	chmod +x /etc/snell/shadowtls
+}
+
 Generate_conf(){
 	Set_V6
 	Set_port
@@ -135,25 +155,57 @@ Generate_conf(){
 	Set_obfs
 }
 
+Generate_stls() {
+	Decide_sv6
+	Set_sport
+	Set_domain
+	Set_pass
+}
 
 Deploy_snell(){
 	cd /etc/systemd/system
 	cat > snell.service<<-EOF
-	[Unit]
-	Description=Snell Server
-	After=network.target
-	[Service]
-	ExecStart=/etc/snell/snell -c /etc/snell/snell-server.conf
-	Restart=on-failure
-	RestartSec=1s
-	[Install]
-	WantedBy=multi-user.target
-	EOF
+[Unit]
+Description=Snell Server
+After=network.target
+
+[Service]
+ExecStart=/etc/snell/snell -c /etc/snell/snell-server.conf
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target
+EOF
 	systemctl daemon-reload
 	systemctl start snell
-	systemctl restart snell
-	systemctl enable snell.service
+	systemctl enable snell
 	colorEcho $BLUE "Snell安装完成"
+}
+
+Deploy_stls() {
+	cd /etc/systemd/system
+	cat > shadowtls.service<<-EOF
+[Unit]
+Description=Shadow-TLS Server Service
+Documentation=man:sstls-server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/etc/snell/shadowtls --fastopen --v3 server --listen $SV6:$SPORT --server 127.0.0.1:$PORT --tls $DOMAIN --password $PASS
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=shadow-tls
+
+[Install]
+WantedBy=multi-user.target
+EOF
+	systemctl daemon-reload
+	systemctl start shadowtls
+	systemctl enable shadowtls
+	colorEcho $BLUE "ShadowTLS安装完成"
 }
 
 Set_V6(){
@@ -228,6 +280,96 @@ Set_obfs(){
 	fi
 }
 
+Decide_sv6() {
+	read -p $'Snell是否已开启V6？[y/n]\n(默认n, 回车)' answer
+	if [[ "${answer}" = "y" ]]; then
+		SV6="[::]"
+	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+		SV6="0.0.0.0"
+	else
+		colorEcho $RED "输入错误, 请输入 y/n"
+		exit 1
+	fi
+}
+
+Set_sport() {
+	read -p $'请输入 Snell 端口 [1-65535]:' PORT
+	echo $((${PORT}+0)) &>/dev/null
+	if [[ $? -eq 0 ]]; then
+		if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
+			colorEcho $BLUE "Snell 端口: ${PORT}"
+			echo ""
+		else
+			colorEcho $RED "输入错误, 请输入正确的端口。"
+			echo ""
+			exit 1
+		fi
+	else
+		colorEcho $RED "输入错误, 请输入数字。"
+		echo ""
+		exit 1
+	fi
+	read -p $'请输入 ShadowTLS 端口 [1-65535]\n(默认: 9999，回车):' SPORT
+	[[ -z "${SPORT}" ]] && SPORT="9999"
+	echo $((${SPORT}+0)) &>/dev/null
+	if [[ $? -eq 0 ]]; then
+		if [[ ${SPORT} -ge 1 ]] && [[ ${SPORT} -le 65535 ]]; then
+			colorEcho $BLUE "端口: ${SPORT}"
+			echo ""
+		else
+			colorEcho $RED "输入错误, 请输入正确的端口。"
+			echo ""
+			exit 1
+		fi
+	else
+		colorEcho $RED "输入错误, 请输入数字。"
+		echo ""
+		exit 1
+	fi
+}
+
+Set_domain() {
+	for ((i=1;i<=${#domains[@]};i++ )); do
+		hint="${domains[$i-1]}"
+		echo -e "${green}${i}${plain}) ${hint}"
+	done
+	read -p "请选择域名(默认: ${domains[0]}):" pick
+	[ -z "$pick" ] && pick=1
+	expr ${pick} + 1 &>/dev/null
+	if [ $? -ne 0 ]; then
+		echo -e "${red}错误, 请输入正确选项${plain}"
+		continue
+	fi
+	if [[ "$pick" -lt 1 || "$pick" -gt ${#domains[@]} ]]; then
+		echo -e "${red}错误, 请输入正确选项${plain}"
+		exit 0
+	fi
+	DOMAIN=${domains[$pick-1]}
+	if [[ "$pick" = "4" ]]; then
+		colorEcho $BLUE "已选择: ${domains[$pick-1]}"
+		echo ""
+		read -p $'请输入自定义域名: ' DOMAIN
+		if [[ -z "${DOMAIN}" ]]; then
+			colorEcho $RED "错误, 请输入正确的域名"
+			echo ""
+			exit 1
+		else
+			colorEcho $BLUE "域名：$DOMAIN"
+			echo ""
+		fi
+	else
+		colorEcho $BLUE "域名：${domains[$pick-1]}"
+		echo ""
+	fi
+}
+
+Set_pass() {
+	read -p $'请设置ShadowTLS的密码\n(默认随机生成, 回车):' PASS
+	[[ -z "$PASS" ]] && PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`
+	colorEcho $BLUE " 密码：$PASS"
+	echo ""
+}
+
 Write_config(){
 	cat > ${snell_conf}<<-EOF
 [snell-server]
@@ -249,6 +391,12 @@ Install_snell(){
 	ShowInfo
 }
 
+Install_stls() {
+	Generate_stls
+	Download_stls
+	Deploy_stls
+}
+
 Start_snell(){
 	systemctl start snell
 	colorEcho $BLUE " Snell已启动"
@@ -267,12 +415,22 @@ Restart_snell(){
 Uninstall_snell(){
 	read -p $' 是否卸载Snell？[y/n]：\n (默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		systemctl stop snell
-		systemctl disable snell
-		rm -rf /etc/systemd/snell.service
-		rm -rf /etc/snell
-		systemctl daemon-reload
-		colorEcho $BLUE " Snell已经卸载完毕"
+		if [[ -f /etc/snell/shadowtls ]]; then
+			systemctl stop snell shadowtls
+			systemctl disable snell shadowtls
+			rm -rf /etc/systemd/snell.service
+			rm -rf /etc/systemd/shadowtls.service
+			rm -rf /etc/snell
+			systemctl daemon-reload
+			colorEcho $BLUE " Snell已经卸载完毕"
+		else
+			systemctl stop snell
+			systemctl disable snell
+			rm -rf /etc/systemd/snell.service
+			rm -rf /etc/snell
+			systemctl daemon-reload
+			colorEcho $BLUE " Snell已经卸载完毕"
+		fi
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE " 取消卸载"
 	else
@@ -334,17 +492,18 @@ menu() {
 	echo -e "# ${GREEN}网址${PLAIN}: https://slotheve.com  #"
 	echo -e "# ${GREEN}TG群${PLAIN}: https://t.me/slotheve #"
 	echo "###############################"
-	echo " -------------"
+	echo " -----------------"
 	echo -e "  ${GREEN}1.${PLAIN}  安装Snell"
-	echo -e "  ${GREEN}2.${PLAIN}  ${RED}卸载Snell${PLAIN}"
-	echo " -------------"
-	echo -e "  ${GREEN}3.${PLAIN}  启动Snell"
-	echo -e "  ${GREEN}4.${PLAIN}  重启Snell"
-	echo -e "  ${GREEN}5.${PLAIN}  停止Snell"
-	echo " -------------"
-	echo -e "  ${GREEN}6.${PLAIN}  查看Snell配置"
-	echo -e "  ${GREEN}7.${PLAIN}  修改Snell配置"
-	echo " -------------"
+	echo -e "  ${GREEN}2.${PLAIN}  配置ShadowTLS"
+	echo -e "  ${GREEN}3.${PLAIN}  ${RED}卸载Snell${PLAIN}"
+	echo " -----------------"
+	echo -e "  ${GREEN}4.${PLAIN}  启动Snell"
+	echo -e "  ${GREEN}5.${PLAIN}  重启Snell"
+	echo -e "  ${GREEN}6.${PLAIN}  停止Snell"
+	echo " -----------------"
+	echo -e "  ${GREEN}7.${PLAIN}  查看Snell配置"
+	echo -e "  ${GREEN}8.${PLAIN}  修改Snell配置"
+	echo " -----------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
 	echo ""
 	echo -n " 当前状态："
@@ -360,21 +519,24 @@ menu() {
 			Install_snell
 			;;
 		2)
-			Uninstall_snell
+			Install_stls
 			;;
 		3)
-			Start_snell
+			Uninstall_snell
 			;;
 		4)
-			Restart_snell
+			Start_snell
 			;;
 		5)
-			Stop_snell
+			Restart_snell
 			;;
 		6)
-			ShowInfo
+			Stop_snell
 			;;
 		7)
+			ShowInfo
+			;;
+		8)
 			Change_snell_info
 			;;
 		*)
