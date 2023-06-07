@@ -540,7 +540,7 @@ menu() {
 	echo "###############################"
 	echo " -----------------"
 	echo -e "  ${GREEN}1.${PLAIN}  安装Snell"
-	echo -e "  ${GREEN}2.${PLAIN}  配置ShadowTLS"
+	echo -e "  ${GREEN}2.${PLAIN}  安装ShadowTLS"
 	echo -e "  ${GREEN}3.${PLAIN}  ${RED}卸载Snell${PLAIN}"
 	echo -e "  ${GREEN}4.${PLAIN}  ${RED}卸载ShadowTLS${PLAIN}"
 	echo " -----------------"
