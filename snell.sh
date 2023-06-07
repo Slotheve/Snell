@@ -440,6 +440,22 @@ Uninstall_snell(){
 	fi
 }
 
+Uninstall_stls() {
+	read -p $' 是否卸载ShadowTLS？[y/n]：\n (默认n, 回车)' answer
+	if [[ "${answer}" = "y" ]]; then
+		systemctl stop shadowtls
+		systemctl disable shadowtls
+		rm -rf /etc/systemd/system/shadowtls.service
+		systemctl daemon-reload
+		colorEcho $BLUE " ShadowTLS已经卸载完毕"
+	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+		colorEcho $BLUE " 取消卸载"
+	else
+		colorEcho $RED " 输入错误, 请输入正确操作。"
+		exit 1
+	fi
+}
+
 ShowInfo() {
 	echo ""
 	echo -e " ${BLUE}Snell配置文件: ${PLAIN} ${RED}${snell_conf}${PLAIN}"
@@ -526,15 +542,16 @@ menu() {
 	echo -e "  ${GREEN}1.${PLAIN}  安装Snell"
 	echo -e "  ${GREEN}2.${PLAIN}  配置ShadowTLS"
 	echo -e "  ${GREEN}3.${PLAIN}  ${RED}卸载Snell${PLAIN}"
+	echo -e "  ${GREEN}4.${PLAIN}  ${RED}卸载ShadowTLS${PLAIN}"
 	echo " -----------------"
-	echo -e "  ${GREEN}4.${PLAIN}  启动Snell"
-	echo -e "  ${GREEN}5.${PLAIN}  重启Snell"
-	echo -e "  ${GREEN}6.${PLAIN}  停止Snell"
+	echo -e "  ${GREEN}5.${PLAIN}  启动Snell"
+	echo -e "  ${GREEN}6.${PLAIN}  重启Snell"
+	echo -e "  ${GREEN}7.${PLAIN}  停止Snell"
 	echo " -----------------"
-	echo -e "  ${GREEN}7.${PLAIN}  查看Snell配置"
-	echo -e "  ${GREEN}8.${PLAIN}  修改Snell配置"
-	echo -e "  ${GREEN}9.${PLAIN}  查看ShadowTLS配置"
-	echo -e "  ${GREEN}10.${PLAIN} 修改ShadowTLS配置"
+	echo -e "  ${GREEN}8.${PLAIN}  查看Snell配置"
+	echo -e "  ${GREEN}9.${PLAIN}  修改Snell配置"
+	echo -e "  ${GREEN}10.${PLAIN} 查看ShadowTLS配置"
+	echo -e "  ${GREEN}11.${PLAIN} 修改ShadowTLS配置"
 	echo " -----------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
 	echo ""
@@ -557,24 +574,27 @@ menu() {
 			Uninstall_snell
 			;;
 		4)
-			Start_snell
+			Uninstall_stls
 			;;
 		5)
-			Restart_snell
+			Start_snell
 			;;
 		6)
-			Stop_snell
+			Restart_snell
 			;;
 		7)
-			ShowInfo
+			Stop_snell
 			;;
 		8)
-			Change_snell
+			ShowInfo
 			;;
 		9)
-			ShowInfo_stls
+			Change_snell
 			;;
 		10)
+			ShowInfo_stls
+			;;
+		11)
 			Change_stls
 			;;
 		*)
