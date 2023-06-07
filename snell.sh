@@ -10,6 +10,7 @@ PLAIN='\033[0m'
 IP=`curl -sL -4 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
+stls_conf="/etc/systemd/system/shadowtls.service"
 STLS="false"
 
 colorEcho() {
@@ -418,15 +419,15 @@ Uninstall_snell(){
 		if [[ -f /etc/snell/shadowtls ]]; then
 			systemctl stop snell shadowtls
 			systemctl disable snell shadowtls
-			rm -rf /etc/systemd/snell.service
-			rm -rf /etc/systemd/shadowtls.service
+			rm -rf /etc/systemd/system/snell.service
+			rm -rf /etc/systemd/system/shadowtls.service
 			rm -rf /etc/snell
 			systemctl daemon-reload
 			colorEcho $BLUE " Snell已经卸载完毕"
 		else
 			systemctl stop snell
 			systemctl disable snell
-			rm -rf /etc/systemd/snell.service
+			rm -rf /etc/systemd/system/snell.service
 			rm -rf /etc/snell
 			systemctl daemon-reload
 			colorEcho $BLUE " Snell已经卸载完毕"
@@ -447,6 +448,13 @@ ShowInfo() {
 	outputSnell
 }
 
+ShowInfo_stls() {
+	echo ""
+	colorEcho $BLUE " ShadowTLS配置信息："
+	GetConfig_stls
+	outputSTLS
+}
+
 GetConfig() {
 	port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
 	if [[ -z "${port}" ]]; then
@@ -463,6 +471,12 @@ GetConfig() {
 	fi
 }
 
+GetConfig_stls() {
+	sport=`grep listen ${stls_conf} | awk -F '=' '{print $2}' | cut -d: -f2 | cut -c1-5`
+	pass=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
+	domain=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
+}
+
 outputSnell() {
 	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
 	echo -e "   ${BLUE}地址(IP): ${PLAIN} ${RED}${IP}${PLAIN}"
@@ -473,14 +487,30 @@ outputSnell() {
 	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
 }
 
-Change_snell_info(){
+outputSTLS() {
+	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}shadow-tls${PLAIN}"
+	echo -e "   ${BLUE}端口(PORT)：${PLAIN} ${RED}${sport}${PLAIN}"
+	echo -e "   ${BLUE}密码(PASS)：${PLAIN} ${RED}${pass}${PLAIN}"
+	echo -e "   ${BLUE}域名(DOMAIN)：${PLAIN} ${RED}${domain}${PLAIN}"
+	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}v3${PLAIN}"
+}
+
+Change_snell(){
 	colorEcho $BLUE " 修改 Snell 配置信息"
 	selectversion
 	Generate_conf
 	Write_config
-	Restart_snell
+	systemctl restart snell
 	colorEcho $BLUE " 修改配置成功"
 	ShowInfo
+}
+
+Change_stls() {
+	colorEcho $BLUE " 修改 ShadowTLS 配置信息"
+	Generate_stls
+	Deploy_stls
+	colorEcho $BLUE " 修改配置成功"
+	ShowInfo_stls
 }
 
 checkSystem
@@ -503,6 +533,8 @@ menu() {
 	echo " -----------------"
 	echo -e "  ${GREEN}7.${PLAIN}  查看Snell配置"
 	echo -e "  ${GREEN}8.${PLAIN}  修改Snell配置"
+	echo -e "  ${GREEN}9.${PLAIN}  查看ShadowTLS配置"
+	echo -e "  ${GREEN}10.${PLAIN} 修改ShadowTLS配置"
 	echo " -----------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
 	echo ""
@@ -510,7 +542,7 @@ menu() {
 	statusText
 	echo 
 
-	read -p " 请选择操作[0-8]：" answer
+	read -p " 请选择操作[0-9]：" answer
 	case $answer in
 		0)
 			exit 0
@@ -537,7 +569,13 @@ menu() {
 			ShowInfo
 			;;
 		8)
-			Change_snell_info
+			Change_snell
+			;;
+		9)
+			ShowInfo_stls
+			;;
+		10)
+			Change_stls
 			;;
 		*)
 			colorEcho $RED " 请选择正确的操作！"
