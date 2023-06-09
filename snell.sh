@@ -269,7 +269,7 @@ Set_obfs(){
 			colorEcho $BLUE "obfs: ${OBFS}"
 			echo ""
 		else
-			echo "错误, 请输入 http/tls"
+			colorEcho $RED "错误, 请输入 http/tls"
 			echo ""
 			exit 1
 		fi
@@ -278,7 +278,7 @@ Set_obfs(){
 		colorEcho $BLUE "禁用obfs"
 		echo ""
 	else
-		echo "错误, 请输入 y/n"
+		colorEcho $RED "错误, 请输入 y/n"
 		echo ""
 		exit 1
 	fi
@@ -339,13 +339,13 @@ Set_sport() {
 Set_domain() {
 	for ((i=1;i<=${#domains[@]};i++ )); do
 		hint="${domains[$i-1]}"
-		echo -e "${green}${i}${plain}) ${hint}"
+		echo -e "${GREEN}${i}${PLAIN}) ${hint}"
 	done
 	read -p "请选择域名(默认: ${domains[0]}):" pick
 	[ -z "$pick" ] && pick=1
 	expr ${pick} + 1 &>/dev/null
 	if [ $? -ne 0 ]; then
-		echo -e "${red}错误, 请输入正确选项${plain}"
+		colorEcho $RED "错误, 请输入正确选项"
 		continue
 	fi
 	if [[ "$pick" -lt 1 || "$pick" -gt ${#domains[@]} ]]; then
