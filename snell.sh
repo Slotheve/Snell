@@ -53,6 +53,9 @@ checkSystem() {
             colorEcho $RED " 不受支持的Linux系统"
             exit 1
         fi
+	OS="apt"
+    else
+	OS="yum"
     fi
     res=`which systemctl 2>/dev/null`
     if [[ "$?" != "0" ]]; then
@@ -99,7 +102,7 @@ statusText() {
 }
 
 Install_dependency(){
-if [[ ${release} == "centos" ]]; then
+if [[ ${OS} == "yum" ]]; then
 	echo ""
 	colorEcho $YELLOW "安装依赖中..."
 	yum install unzip wget -y >/dev/null 2>&1
