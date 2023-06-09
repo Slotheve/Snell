@@ -337,10 +337,6 @@ Set_sport() {
 }
 
 Set_domain() {
-	for ((i=1;i<=${#domains[@]};i++ )); do
-		hint="${domains[$i-1]}"
-		echo -e "${GREEN}${i}${PLAIN}) ${hint}"
-	done
 	read -p "请选择域名(默认: ${domains[0]}):" pick
 	[ -z "$pick" ] && pick=1
 	expr ${pick} + 1 &>/dev/null
