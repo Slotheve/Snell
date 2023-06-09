@@ -285,8 +285,12 @@ Decide_sv6() {
 	read -p $'Snell是否已开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
 		SV6="[::]"
+		colorEcho $BLUE "开启V6"
+		echo ""
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		SV6="0.0.0.0"
+		colorEcho $BLUE "关闭V6"
+		echo ""
 	else
 		colorEcho $RED "输入错误, 请输入 y/n"
 		exit 1
