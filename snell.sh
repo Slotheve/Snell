@@ -537,7 +537,7 @@ checkSystem
 menu() {
 	clear
 	echo "###############################"
-	echo -e "# ${RED}Snell一键安装脚本${PLAIN}             #"
+	echo -e "# ${RED}Snell一键安装脚本${PLAIN}           #"
 	echo -e "# ${GREEN}作者${PLAIN}: 怠惰(Slotheve)        #"
 	echo -e "# ${GREEN}网址${PLAIN}: https://slotheve.com  #"
 	echo -e "# ${GREEN}TG群${PLAIN}: https://t.me/slotheve #"
