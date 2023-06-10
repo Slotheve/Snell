@@ -309,7 +309,7 @@ Set_obfs(){
 Decide_sv6() {
 	read -p $'Snell是否已开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		SV6="[::]"
+		SV6="::0"
 		colorEcho $BLUE "开启V6"
 		echo ""
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
