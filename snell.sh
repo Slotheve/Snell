@@ -182,8 +182,8 @@ RestartSec=1s
 WantedBy=multi-user.target
 EOF
 	systemctl daemon-reload
-	systemctl start snell
 	systemctl enable snell
+	systemctl restart snell
 	colorEcho $BLUE "Snell安装完成"
 }
 
@@ -207,8 +207,8 @@ SyslogIdentifier=shadow-tls
 WantedBy=multi-user.target
 EOF
 	systemctl daemon-reload
-	systemctl start shadowtls
 	systemctl enable shadowtls
+	systemctl restart shadowtls
 	colorEcho $BLUE "ShadowTLS安装完成"
 }
 
