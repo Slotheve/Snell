@@ -412,6 +412,7 @@ Install_stls() {
 	Generate_stls
 	Download_stls
 	Deploy_stls
+	ShowInfo_stls
 }
 
 Start_snell(){
