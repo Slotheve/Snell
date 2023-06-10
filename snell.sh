@@ -101,6 +101,14 @@ statusText() {
     esac
 }
 
+Check_snell() {
+    ress=`status`
+	if [[ "${ress}" = "0" || "${ress}" = "1" ]]; then
+	    colorEcho $RED "未安装Snell, 请先安装Snell"
+		exit 1
+	fi
+}
+
 Install_dependency(){
 if [[ ${OS} == "yum" ]]; then
 	echo ""
@@ -400,6 +408,7 @@ Install_snell(){
 }
 
 Install_stls() {
+	Check_snell
 	Generate_stls
 	Download_stls
 	Deploy_stls
