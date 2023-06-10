@@ -341,7 +341,7 @@ Set_domain() {
  		hint="${domains[$i-1]}"
  		echo -e "${GREEN}${i}${PLAIN}) ${hint}"
  	done
-	read -p "请选择域名(默认: ${domains[0]}):" pick
+	read -p $'请选择域名 [1-4]\n(默认: ${domains[0]}):' pick
 	[ -z "$pick" ] && pick=1
 	expr ${pick} + 1 &>/dev/null
 	if [ $? -ne 0 ]; then
