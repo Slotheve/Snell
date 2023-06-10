@@ -151,6 +151,7 @@ Download_snell(){
 }
 
 Download_stls() {
+	rm -rf /etc/snell/shadowtls
 	archAffix
 	TAG_URL="https://api.github.com/repos/ihciah/shadow-tls/releases/latest"
 	DOWN_VER=`curl -s "${TAG_URL}" --connect-timeout 10| grep -Eo '\"tag_name\"(.*?)\",' | cut -d\" -f4`
