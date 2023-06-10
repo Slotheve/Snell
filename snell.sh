@@ -224,10 +224,16 @@ EOF
 Set_V6(){
 	read -p $'是否开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		colorEcho $BLUE "启用V6"
-		echo ""
+		if [[ $VER == "v3.0.1" ]]; then
+			LIP="[::]"
+			colorEcho $BLUE "启用V6"
+			echo ""
+		else
+			LIP="::0"
+			colorEcho $BLUE "启用V6"
+			echo ""
+		fi
 		V6="true"
-		LIP="[::]"
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE "禁用V6"
 		echo ""
@@ -302,15 +308,9 @@ Set_obfs(){
 Decide_sv6() {
 	read -p $'Snell是否已开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		if [[ $VER == "v3.0.1" ]]; then
-			SV6="[::]"
-			colorEcho $BLUE "开启V6"
-			echo ""
-		else
-			SV6="::0"
-			colorEcho $BLUE "开启V6"
-			echo ""
-		fi
+		SV6="[::]"
+		colorEcho $BLUE "开启V6"
+		echo ""
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		SV6="0.0.0.0"
 		colorEcho $BLUE "关闭V6"
