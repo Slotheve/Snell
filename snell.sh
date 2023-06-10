@@ -413,6 +413,8 @@ Install_stls() {
 	Download_stls
 	Deploy_stls
 	ShowInfo_stls
+	echo ""
+	echo -e "   ${YELLOW}请将${PLAIN}${RED} 端口 ${PLAIN}${YELLOW}替换为${PLAIN}${RED} ${sport} ${PLAIN}"
 }
 
 Start_snell(){
@@ -525,8 +527,6 @@ outputSTLS() {
 	echo -e "   ${BLUE}密码(PASS)：${PLAIN} ${RED}${pass}${PLAIN}"
 	echo -e "   ${BLUE}域名(DOMAIN)：${PLAIN} ${RED}${domain}${PLAIN}"
 	echo -e "   ${BLUE}版本(VER)：${PLAIN} ${RED}v3${PLAIN}"
-	echo ""
-	echo -e "   ${YELLOW}请将${PLAIN}${RED} 端口 ${PLAIN}${YELLOW}替换为${PLAIN}${RED} ${sport} ${PLAIN}"
 }
 
 Change_snell(){
