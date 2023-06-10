@@ -526,7 +526,12 @@ GetConfig() {
 }
 
 GetConfig_stls() {
-	sport=`grep listen ${stls_conf} | awk -F '=' '{print $2}' | cut -d: -f2 | cut -c1-5`
+	SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+	if [[ "$SSV6" = "true" ]]; then
+		sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
+	else
+		sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
+	fi
 	pass=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
 	domain=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
 }
