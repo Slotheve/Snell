@@ -7,7 +7,8 @@ YELLOW="\033[33m"
 BLUE="\033[36m"
 PLAIN='\033[0m'
 
-IP=`curl -sL -4 ip.sb`
+IP4=`curl -sL -4 ip.sb`
+IP6=`curl -sL -6 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
 stls_conf="/etc/systemd/system/shadowtls.service"
@@ -510,6 +511,11 @@ GetConfig() {
 	fi
 	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
 	ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+	if [[ $ipv6 == "true" ]]; then
+		IP=${IP6}
+	else
+		IP=${IP4}
+	fi
 	obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
 	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
 	if [[ "$ver" = "v3.0.1" ]]; then
