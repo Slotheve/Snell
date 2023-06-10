@@ -224,10 +224,16 @@ EOF
 Set_V6(){
 	read -p $'是否开启V6？[y/n]\n(默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		LIP="[::]"
+		if [[ $VER == "v3.0.1" ]]; then
+			LIP="[::]"
+			colorEcho $BLUE "启用V6"
+			echo ""
+		else
+			LIP="::0"
+			colorEcho $BLUE "启用V6"
+			echo ""
+		fi
 		V6="true"
-		colorEcho $BLUE "启用V6"
-		echo ""
 	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 		colorEcho $BLUE "禁用V6"
 		echo ""
