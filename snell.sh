@@ -449,7 +449,7 @@ Restart_snell(){
 Uninstall_snell(){
 	read -p $' 是否卸载Snell？[y/n]：\n (默认n, 回车)' answer
 	if [[ "${answer}" = "y" ]]; then
-		if [[ -f /etc/snell/shadowtls ]]; then
+		if [[ -f "$stls_conf" ]]; then
 			systemctl stop snell shadowtls
 			systemctl disable snell shadowtls
 			rm -rf /etc/systemd/system/snell.service
