@@ -572,7 +572,7 @@ ShowInfo() {
 	colorEcho $BLUE " Snell配置信息："
 	GetConfig
 	outputSnell
-    if [[ -f $stls_conf ]]; then
+	if [[ -f $stls_conf ]]; then
 		GetConfig_stls
 		outputSTLS
 		echo ""
