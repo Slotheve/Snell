@@ -191,12 +191,13 @@ selectversion() {
 		colorEcho $RED "错误, 请选择[1-4]"
 		exit 0
 	fi
+	vers=${versions[$pick-1]}
 	if [[ "$pick" = "4" ]]; then
 		VER="v4.0.1"
 	else
 		VER="v3.0.1"
 	fi
-	colorEcho $BLUE "版本: ${VER}"
+	colorEcho $BLUE "版本: ${vers}"
 	echo ""
 }
 
@@ -488,7 +489,7 @@ psk = ${PSK}
 ipv6 = ${V6}
 obfs = ${OBFS}
 tfo = ${TFO}
-# $VER
+# ${vers}
 EOF
 }
 
@@ -595,11 +596,6 @@ GetConfig() {
 	obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
 	tfo=`grep tfo ${snell_conf} | awk -F '= ' '{print $2}'`
 	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
-	if [[ "$ver" = "v3.0.1" ]]; then
-		ver="v3"
-	else
-		ver="v4"
-	fi
 }
 
 GetConfig_stls() {
