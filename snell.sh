@@ -200,8 +200,13 @@ selectversion() {
 }
 
 show_version() {
-    colorEcho $BLUE "版本: ${vers}"
-    echo ""
+    if [[ ! -z "${vers}" ]]; then
+	colorEcho $BLUE "版本: ${vers}"
+	echo ""
+    else
+	echo ""
+	return
+    fi
 }
 
 Download_snell(){
@@ -263,8 +268,6 @@ EOF
     systemctl daemon-reload
     systemctl enable snell
     systemctl restart snell
-    colorEcho $BLUE "Snell安装完成"
-    echo ""
 }
 
 Deploy_stls() {
@@ -285,11 +288,11 @@ SyslogIdentifier=shadow-tls
 
 [Install]
 WantedBy=multi-user.target
+# ${V6}
 EOF
     systemctl daemon-reload
     systemctl enable shadowtls
     systemctl restart shadowtls
-    colorEcho $BLUE "ShadowTLS安装完成"
 }
 
 Set_V6(){
@@ -477,6 +480,8 @@ Install_snell(){
     selectversion
     Generate_conf
     Install_stls
+    colorEcho $BLUE "安装完成"
+    echo ""
     ShowInfo
 }
 
@@ -607,9 +612,16 @@ outputSTLS() {
 }
 
 Change_snell(){
-    colorEcho $BLUE " 修改 Snell 配置信息"
-    selectversion
+    tmp3=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
     Generate_conf
+    if [[ -f "$stls_conf" ]]; then
+	SV6=`grep '#' ${stls_conf} | awk -F '# ' '{print $2}'`
+	if [[ ${SV6} != ${V6} ]]; then
+		Generate_stls
+		Deploy_stls
+	fi
+    fi
+    vers=$tmp3
     Write_config
     systemctl restart snell
     colorEcho $BLUE " 修改配置成功"
@@ -617,9 +629,17 @@ Change_snell(){
 }
 
 Change_stls() {
-    colorEcho $BLUE " 修改 ShadowTLS 配置信息"
-    echo ""
+    tmp3=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
     Generate_stls
+    if [[ -f "$stls_conf" ]]; then
+	V6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+	if [[ ${V6} != ${SV6} ]]; then
+		Generate_conf
+		vers=$tmp3
+		Write_config
+		systemctl restart snell
+	fi
+    fi
     Deploy_stls
     colorEcho $BLUE " 修改配置成功"
     ShowInfo
