@@ -561,6 +561,10 @@ Uninstall_snell(){
 }
 
 ShowInfo() {
+    if [[ ! -f $stls_conf ]]; then
+	colorEcho $RED "Snell未安装"
+ 	exit 1
+    fi
     echo ""
     echo -e " ${BLUE}Snell配置文件: ${PLAIN} ${RED}${snell_conf}${PLAIN}"
     colorEcho $BLUE " Snell配置信息："
