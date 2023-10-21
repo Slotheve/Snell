@@ -12,7 +12,6 @@ IP6=`curl -sL -6 ip.sb`
 CPU=`uname -m`
 snell_conf="/etc/snell/snell-server.conf"
 stls_conf="/etc/systemd/system/shadowtls.service"
-STLS="false"
 
 colorEcho() {
     echo -e "${1}${@:2}${PLAIN}"
@@ -82,11 +81,11 @@ status() {
         return
     fi
     tmp=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
-    if [[ -z "${tmp}" ]]; then
+    if [[ -z ${tmp} ]]; then
         tmp=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
     fi
     res=`ss -nutlp| grep ${tmp} | grep -i snell`
-    if [[ -z "$res" ]]; then
+    if [[ -z $res ]]; then
 	echo 2
     else
 	echo 3
@@ -103,14 +102,14 @@ status_stls() {
         echo 1
         return
     fi
-    SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-    if [[ "$SSV6" = "true" ]]; then
+    V6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ $V6 = "true" ]]; then
 	tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
     else
 	tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
     fi
     res2=`ss -nutlp| grep ${tmp2} | grep -i shadowtls`
-    if [[ -z "$res2" ]]; then
+    if [[ -z $res2 ]]; then
 	echo 2
     else
 	echo 3
@@ -583,8 +582,8 @@ GetConfig() {
 }
 
 GetConfig_stls() {
-    SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-    if [[ "$SSV6" = "true" ]]; then
+    V6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ $V6 = "true" ]]; then
 	sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
     else
 	sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
@@ -615,11 +614,18 @@ Change_snell(){
     tmp3=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
     Generate_conf
     if [[ -f "$stls_conf" ]]; then
-	SV6=`grep '#' ${stls_conf} | awk -F '# ' '{print $2}'`
-	if [[ ${SV6} != ${V6} ]]; then
-		Generate_stls
-		Deploy_stls
+	if [[ ${V6} = "true" ]]; then
+		SV6="::0"
+		SPORT=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
+		PASS=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
+		DOMAIN=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
+	else
+		SV6="0.0.0.0"
+		SPORT=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
+		PASS=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
+		DOMAIN=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
 	fi
+	Deploy_stls
     fi
     vers=$tmp3
     Write_config
@@ -629,20 +635,16 @@ Change_snell(){
 }
 
 Change_stls() {
-    tmp3=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
-    Generate_stls
+    PORT=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
     if [[ -f "$stls_conf" ]]; then
 	V6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-	if [[ ${V6} != ${SV6} ]]; then
-		Generate_conf
-		vers=$tmp3
-		Write_config
-		systemctl restart snell
-	fi
+	Generate_stls
+	Deploy_stls
+	colorEcho $BLUE " 修改配置成功"
+	ShowInfo
+    else
+	colorEcho $RED " 未安装ShadowTls"
     fi
-    Deploy_stls
-    colorEcho $BLUE " 修改配置成功"
-    ShowInfo
 }
 
 checkSystem
