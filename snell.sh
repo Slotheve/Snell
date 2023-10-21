@@ -189,7 +189,7 @@ selectversion() {
     fi
     if [[ "$pick" -lt 1 || "$pick" -gt ${#versions[@]} ]]; then
 	colorEcho $RED "错误, 请选择[1-4]"
-	exit 0
+	selectversion
     fi
     vers=${versions[$pick-1]}
     if [[ "$pick" = "4" ]]; then
@@ -306,7 +306,7 @@ Set_V6(){
  	V6="false"
     else
 	colorEcho $RED "输入错误, 请输入 y/n"
-	exit 1
+	Set_V6
     fi
 }
 
@@ -320,12 +320,11 @@ Set_port(){
 		echo ""
 	else
 		colorEcho $RED "输入错误, 请输入正确的端口。"
-		echo ""
+		Set_port
 	fi
     else
 	colorEcho $RED "输入错误, 请输入数字。"
-	echo ""
-	exit 1
+	Set_port
     fi
 }
 
@@ -334,8 +333,7 @@ Set_psk(){
     [[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
     if [[ "${#PSK}" != 31 ]]; then
 	colorEcho $RED "请输入正确的密匙（31位字符）。"
-	echo ""
-	exit 1
+	Set_psk
     fi
     colorEcho $BLUE "PSK: ${PSK}"
     echo ""
@@ -350,8 +348,7 @@ Set_obfs(){
 		echo ""
 	else
 		colorEcho $RED "错误, 请输入 http/tls"
-		echo ""
-		exit 1
+		Set_obfs
 	fi
     elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
 	if [[ $VER == "v3.0.1" ]]; then
@@ -365,8 +362,7 @@ Set_obfs(){
 	fi
     else
 	colorEcho $RED "错误, 请输入 y/n"
-	echo ""
-	exit 1
+	Set_obfs
     fi
 }
 
@@ -382,8 +378,7 @@ Set_tfo(){
 	echo ""
     else
 	colorEcho $RED "错误, 请输入 y/n"
-	echo ""
-	exit 1
+	Set_tfo
     fi
 }
 
@@ -405,13 +400,11 @@ Set_sport() {
 		echo ""
 	else
 		colorEcho $RED "输入错误, 请输入正确的端口。"
-		echo ""
-		exit 1
+		Set_sport
 	fi
     else
 	colorEcho $RED "输入错误, 请输入数字。"
-	echo ""
-	exit 1
+	Set_sport
     fi
     read -p $'请输入 ShadowTLS 端口 [1-65535]\n(默认: 9999，回车): ' SPORT
     [[ -z "${SPORT}" ]] && SPORT="9999"
@@ -422,13 +415,11 @@ Set_sport() {
 		echo ""
 	else
 		colorEcho $RED "输入错误, 请输入正确的端口。"
-		echo ""
-		exit 1
+		Set_sport
 	fi
     else
 	colorEcho $RED "输入错误, 请输入数字。"
-	echo ""
-	exit 1
+	Set_sport
     fi
 }
 
@@ -442,11 +433,11 @@ Set_domain() {
     expr ${pick} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
 	colorEcho $RED "错误, 请输入正确选项"
-	continue
+	Set_domain
     fi
     if [[ "$pick" -lt 1 || "$pick" -gt ${#domains[@]} ]]; then
 	echo -e "${red}错误, 请输入正确选项${plain}"
-	exit 0
+	Set_domain
     fi
     DOMAIN=${domains[$pick-1]}
     if [[ "$pick" = "4" ]]; then
@@ -455,8 +446,7 @@ Set_domain() {
 	read -p $'请输入自定义域名: ' DOMAIN
 	if [[ -z "${DOMAIN}" ]]; then
 		colorEcho $RED "错误, 请输入正确的域名"
-		echo ""
-		exit 1
+		Set_domain
 	else
 		colorEcho $BLUE "域名：$DOMAIN"
 		echo ""
@@ -513,8 +503,7 @@ Install_stls() {
 	Deploy_snell
     else
 	colorEcho $RED " 输入错误, 请输入[y/n]。"
-	echo ""
-	exit 1
+	Install_stls
     fi
 }
 
@@ -552,17 +541,14 @@ Uninstall_snell(){
 		systemctl daemon-reload
 		colorEcho $BLUE " Snell已经卸载完毕"
 	fi
-    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-	colorEcho $BLUE " 取消卸载"
     else
-	colorEcho $RED " 输入错误, 请输入[y/n]。"
-	exit 1
+	colorEcho $BLUE " 取消卸载"
     fi
 }
 
 ShowInfo() {
     if [[ ! -f $stls_conf ]]; then
-	colorEcho $RED "Snell未安装"
+	colorEcho $RED " Snell未安装"
  	exit 1
     fi
     echo ""
@@ -701,7 +687,8 @@ menu() {
 			;;
 		*)
 			colorEcho $RED " 请选择正确的操作！"
-			exit 1
+   			sleep 5s
+			menu
 			;;
 	esac
 }
