@@ -33,15 +33,15 @@ mp.weixin.qq.com
 )
 
 archAffix(){
-    if   [[ "$CPU" = "x86_64" ]] || [[ "$CPU" = "amd64" ]]; then
-		CPU="amd64"
-		ARCH="x86_64"
-	elif [[ "$CPU" = "armv8" ]] || [[ "$CPU" = "aarch64" ]]; then
-		CPU="arm64"
-		ARCH="aarch64"
-	else
-		colorEcho $RED " 不支持的CPU架构！"
-	fi
+    if [[ "$CPU" = "x86_64" ]] || [[ "$CPU" = "amd64" ]]; then
+	CPU="amd64"
+	ARCH="x86_64"
+    elif [[ "$CPU" = "armv8" ]] || [[ "$CPU" = "aarch64" ]]; then
+	CPU="arm64"
+	ARCH="aarch64"
+    else
+	colorEcho $RED " 不支持的CPU架构！"
+    fi
 }
 
 checkSystem() {
@@ -87,10 +87,10 @@ status() {
     fi
     res=`ss -nutlp| grep ${tmp} | grep -i snell`
     if [[ -z "$res" ]]; then
-		echo 2
-	else
-		echo 3
-		return
+	echo 2
+    else
+	echo 3
+	return
     fi
 }
 
@@ -103,24 +103,24 @@ status_stls() {
         echo 1
         return
     fi
-	SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-	if [[ "$SSV6" = "true" ]]; then
-		tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
-	else
-		tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
-	fi
+    SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ "$SSV6" = "true" ]]; then
+	tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
+    else
+	tmp2=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
+    fi
     res2=`ss -nutlp| grep ${tmp2} | grep -i shadowtls`
     if [[ -z "$res2" ]]; then
-		echo 2
-	else
-		echo 3
-		return
+	echo 2
+    else
+	echo 3
+	return
     fi
 }
 
 statusText() {
     res=`status`
-	res2=`status_stls`
+    res2=`status_stls`
     case ${res}${res2} in
         22)
             echo -e ${BLUE}Snell:${PLAIN} ${GREEN}已安装${PLAIN} ${RED}未运行${PLAIN}
@@ -162,86 +162,86 @@ statusText() {
 }
 
 Install_dependency(){
-if [[ ${OS} == "yum" ]]; then
+    if [[ ${OS} == "yum" ]]; then
 	echo ""
 	colorEcho $YELLOW "安装依赖中..."
 	yum install unzip wget -y >/dev/null 2>&1
 	echo ""
-else
+    else
 	echo ""
 	colorEcho $YELLOW "安装依赖中..."
 	apt install unzip wget -y >/dev/null 2>&1
 	echo ""
-fi
+    fi
 }
 
 selectversion() {
-	 for ((i=1;i<=${#versions[@]};i++ )); do
- 		hint="${versions[$i-1]}"
- 		echo -e "${GREEN}${i}${PLAIN}) ${hint}"
- 	done
-	read -p "请选择版本[1-4] (默认: ${versions[3]}):" pick
-	[ -z "$pick" ] && pick=4
-	expr ${pick} + 1 &>/dev/null
-	if [ $? -ne 0 ]; then
-		colorEcho $RED "错误, 请选择[1-4]"
-		continue
-	fi
-	if [[ "$pick" -lt 1 || "$pick" -gt ${#versions[@]} ]]; then
-		colorEcho $RED "错误, 请选择[1-4]"
-		exit 0
-	fi
-	vers=${versions[$pick-1]}
-	if [[ "$pick" = "4" ]]; then
-		VER="v4.0.1"
-	else
-		VER="v3.0.1"
-	fi
-	colorEcho $BLUE "版本: ${vers}"
-	echo ""
+    for ((i=1;i<=${#versions[@]};i++ )); do
+ 	hint="${versions[$i-1]}"
+ 	echo -e "${GREEN}${i}${PLAIN}) ${hint}"
+    done
+    read -p "请选择版本[1-4] (默认: ${versions[3]}):" pick
+    [ -z "$pick" ] && pick=4
+    expr ${pick} + 1 &>/dev/null
+    if [ $? -ne 0 ]; then
+	colorEcho $RED "错误, 请选择[1-4]"
+	continue
+    fi
+    if [[ "$pick" -lt 1 || "$pick" -gt ${#versions[@]} ]]; then
+	colorEcho $RED "错误, 请选择[1-4]"
+	exit 0
+    fi
+    vers=${versions[$pick-1]}
+    if [[ "$pick" = "4" ]]; then
+	VER="v4.0.1"
+    else
+	VER="v3.0.1"
+    fi
+    colorEcho $BLUE "版本: ${vers}"
+    echo ""
 }
 
 Download_snell(){
-	rm -rf /etc/snell /tmp/snell
-	mkdir -p /etc/snell /tmp/snell
-	archAffix
-	DOWNLOAD_LINK="https://raw.githubusercontent.com/Slotheve/Snell/main/snell-server-${VER}-linux-${CPU}.zip"
-	colorEcho $YELLOW "下载Snell: ${DOWNLOAD_LINK}"
-	curl -L -H "Cache-Control: no-cache" -o /tmp/snell/snell.zip ${DOWNLOAD_LINK}
-	unzip /tmp/snell/snell.zip -d /tmp/snell/
-	mv /tmp/snell/snell-server /etc/snell/snell
-	chmod +x /etc/snell/snell
+    rm -rf /etc/snell /tmp/snell
+    mkdir -p /etc/snell /tmp/snell
+    archAffix
+    DOWNLOAD_LINK="https://raw.githubusercontent.com/Slotheve/Snell/main/snell-server-${VER}-linux-${CPU}.zip"
+    colorEcho $YELLOW "下载Snell: ${DOWNLOAD_LINK}"
+    curl -L -H "Cache-Control: no-cache" -o /tmp/snell/snell.zip ${DOWNLOAD_LINK}
+    unzip /tmp/snell/snell.zip -d /tmp/snell/
+    mv /tmp/snell/snell-server /etc/snell/snell
+    chmod +x /etc/snell/snell
 }
 
 Download_stls() {
-	rm -rf /etc/snell/shadowtls
-	archAffix
-	TAG_URL="https://api.github.com/repos/ihciah/shadow-tls/releases/latest"
-	DOWN_VER=`curl -s "${TAG_URL}" --connect-timeout 10| grep -Eo '\"tag_name\"(.*?)\",' | cut -d\" -f4`
-	DOWNLOAD_LINK="https://github.com/ihciah/shadow-tls/releases/download/${DOWN_VER}/shadow-tls-${ARCH}-unknown-linux-musl"
-	colorEcho $YELLOW "下载ShadowTLS: ${DOWNLOAD_LINK}"
-	curl -L -H "Cache-Control: no-cache" -o /etc/snell/shadowtls ${DOWNLOAD_LINK}
-	chmod +x /etc/snell/shadowtls
+    rm -rf /etc/snell/shadowtls
+    archAffix
+    TAG_URL="https://api.github.com/repos/ihciah/shadow-tls/releases/latest"
+    DOWN_VER=`curl -s "${TAG_URL}" --connect-timeout 10| grep -Eo '\"tag_name\"(.*?)\",' | cut -d\" -f4`
+    DOWNLOAD_LINK="https://github.com/ihciah/shadow-tls/releases/download/${DOWN_VER}/shadow-tls-${ARCH}-unknown-linux-musl"
+    colorEcho $YELLOW "下载ShadowTLS: ${DOWNLOAD_LINK}"
+    curl -L -H "Cache-Control: no-cache" -o /etc/snell/shadowtls ${DOWNLOAD_LINK}
+    chmod +x /etc/snell/shadowtls
 }
 
 Generate_conf(){
-	Set_V6
-	Set_port
-	Set_psk
-	Set_obfs
-	Set_tfo
+    Set_V6
+    Set_port
+    Set_psk
+    Set_obfs
+    Set_tfo
 }
 
 Generate_stls() {
-	Decide_sv6
-	Set_sport
-	Set_domain
-	Set_pass
+    Decide_sv6
+    Set_sport
+    Set_domain
+    Set_pass
 }
 
 Deploy_snell(){
-	cd /etc/systemd/system
-	cat > snell.service<<-EOF
+    cd /etc/systemd/system
+    cat > snell.service<<-EOF
 [Unit]
 Description=Snell Server
 After=network.target
@@ -254,16 +254,16 @@ RestartSec=1s
 [Install]
 WantedBy=multi-user.target
 EOF
-	systemctl daemon-reload
-	systemctl enable snell
-	systemctl restart snell
-	colorEcho $BLUE "Snell安装完成"
-	echo ""
+    systemctl daemon-reload
+    systemctl enable snell
+    systemctl restart snell
+    colorEcho $BLUE "Snell安装完成"
+    echo ""
 }
 
 Deploy_stls() {
-	cd /etc/systemd/system
-	cat > shadowtls.service<<-EOF
+    cd /etc/systemd/system
+    cat > shadowtls.service<<-EOF
 [Unit]
 Description=Shadow-TLS Server Service
 Documentation=man:sstls-server
@@ -280,209 +280,202 @@ SyslogIdentifier=shadow-tls
 [Install]
 WantedBy=multi-user.target
 EOF
-	systemctl daemon-reload
-	systemctl enable shadowtls
-	systemctl restart shadowtls
-	colorEcho $BLUE "ShadowTLS安装完成"
+    systemctl daemon-reload
+    systemctl enable shadowtls
+    systemctl restart shadowtls
+    colorEcho $BLUE "ShadowTLS安装完成"
 }
 
 Set_V6(){
-	read -p $'是否开启V6？[y/n]\n(默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		if [[ $VER == "v3.0.1" ]]; then
-			LIP="[::]"
-			colorEcho $BLUE "启用V6"
-			echo ""
-		else
-			LIP="::0"
-			colorEcho $BLUE "启用V6"
-			echo ""
-		fi
-		V6="true"
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		colorEcho $BLUE "禁用V6"
+    read -p $'是否开启V6？[y/n]\n(默认n, 回车): ' answer
+    if [[ "${answer}" = "y" ]]; then
+	if [[ $VER == "v3.0.1" ]]; then
+		LIP="[::]"
+		colorEcho $BLUE "启用V6"
 		echo ""
-		V6="false"
-		LIP="0.0.0.0"
 	else
-		colorEcho $RED "输入错误, 请输入 y/n"
-		exit 1
+		LIP="::0"
+		colorEcho $BLUE "启用V6"
+		echo ""
 	fi
+    V6="true"
+    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+	colorEcho $BLUE "禁用V6"
+	echo ""
+	LIP="0.0.0.0"
+ 	V6="false"
+    else
+	colorEcho $RED "输入错误, 请输入 y/n"
+	exit 1
+    fi
 }
 
 Set_port(){
-	read -p $'请输入 Snell 端口 [1-65535]\n(默认: 6666，回车): ' PORT
-	[[ -z "${PORT}" ]] && PORT="6666"
-	echo $((${PORT}+0)) &>/dev/null
-	if [[ $? -eq 0 ]]; then
-		if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
-			colorEcho $BLUE "端口: ${PORT}"
-			echo ""
-		else
-			colorEcho $RED "输入错误, 请输入正确的端口。"
-			echo ""
-		fi
-	else
-		colorEcho $RED "输入错误, 请输入数字。"
+    read -p $'请输入 Snell 端口 [1-65535]\n(默认: 6666，回车): ' PORT
+    [[ -z "${PORT}" ]] && PORT="6666"
+    echo $((${PORT}+0)) &>/dev/null
+    if [[ $? -eq 0 ]]; then
+	if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
+		colorEcho $BLUE "端口: ${PORT}"
 		echo ""
-		exit 1
+	else
+		colorEcho $RED "输入错误, 请输入正确的端口。"
+		echo ""
 	fi
+    else
+	colorEcho $RED "输入错误, 请输入数字。"
+	echo ""
+	exit 1
+    fi
 }
 
 Set_psk(){
-	read -p $'请输入 Snell PSK 密钥\n(推荐随机生成，直接回车): ' PSK
-	[[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
-	if [[ "${#PSK}" != 31 ]]; then
-		colorEcho $RED "请输入正确的密匙（31位字符）。"
-		echo ""
-		exit 1
-	fi
-	colorEcho $BLUE "PSK: ${PSK}"
+    read -p $'请输入 Snell PSK 密钥\n(推荐随机生成，直接回车): ' PSK
+    [[ -z "${PSK}" ]] && PSK=`tr -dc A-Za-z0-9 </dev/urandom | head -c 31`
+    if [[ "${#PSK}" != 31 ]]; then
+	colorEcho $RED "请输入正确的密匙（31位字符）。"
 	echo ""
+	exit 1
+    fi
+    colorEcho $BLUE "PSK: ${PSK}"
+    echo ""
 }
 
 Set_obfs(){
-	read -p $'是否开启obfs？[y/n]\n(默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		read -e -p "请输入 obfs 混淆 (tls/http): " OBFS
-		if [[ "${OBFS}" = "tls" || "${OBFS}" = "http" ]]; then
-			colorEcho $BLUE "obfs: ${OBFS}"
-			echo ""
-		else
-			colorEcho $RED "错误, 请输入 http/tls"
-			echo ""
-			exit 1
-		fi
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		if [[ $VER == "v3.0.1" ]]; then
-			OBFS="none"
-			colorEcho $BLUE "禁用obfs"
-			echo ""
-		else
-			OBFS="off"
-			colorEcho $BLUE "禁用obfs"
-			echo ""
-		fi
+    read -p $'是否开启obfs？[y/n]\n(默认n, 回车): ' answer
+    if [[ "${answer}" = "y" ]]; then
+	read -e -p "请输入 obfs 混淆 (tls/http): " OBFS
+	if [[ "${OBFS}" = "tls" || "${OBFS}" = "http" ]]; then
+		colorEcho $BLUE "obfs: ${OBFS}"
+		echo ""
 	else
-		colorEcho $RED "错误, 请输入 y/n"
+		colorEcho $RED "错误, 请输入 http/tls"
 		echo ""
 		exit 1
 	fi
+    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+	if [[ $VER == "v3.0.1" ]]; then
+		OBFS="none"
+		colorEcho $BLUE "禁用obfs"
+		echo ""
+	else
+		OBFS="off"
+		colorEcho $BLUE "禁用obfs"
+		echo ""
+	fi
+    else
+	colorEcho $RED "错误, 请输入 y/n"
+	echo ""
+	exit 1
+    fi
 }
 
 Set_tfo(){
-	read -p $'是否开启TFO？[y/n]\n(默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		TFO="true"
-		colorEcho $BLUE "启用TFO"
-		echo ""
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		TFO="false"
-		colorEcho $BLUE "禁用TFO"
-		echo ""
-	else
-		colorEcho $RED "错误, 请输入 y/n"
-		echo ""
-		exit 1
-	fi
+    read -p $'是否开启TFO？[y/n]\n(默认n, 回车): ' answer
+    if [[ "${answer}" = "y" ]]; then
+	TFO="true"
+	colorEcho $BLUE "启用TFO"
+	echo ""
+    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+	TFO="false"
+	colorEcho $BLUE "禁用TFO"
+	echo ""
+    else
+	colorEcho $RED "错误, 请输入 y/n"
+	echo ""
+	exit 1
+    fi
 }
 
 Decide_sv6() {
-	read -p $'Snell是否已开启V6？[y/n]\n(默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		SV6="::0"
-		colorEcho $BLUE "开启V6"
-		echo ""
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		SV6="0.0.0.0"
-		colorEcho $BLUE "关闭V6"
-		echo ""
-	else
-		colorEcho $RED "输入错误, 请输入 y/n"
-		exit 1
-	fi
+    ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ "${ipv6}" = "true" ]]; then
+	SV6="::0"
+    elif [[ "${ipv6}" = "false" ]]; then
+	SV6="0.0.0.0"
+    fi
 }
 
 Set_sport() {
-	read -p $'请输入 Snell 端口 [1-65535]: ' PORT
-	echo $((${PORT}+0)) &>/dev/null
-	if [[ $? -eq 0 ]]; then
-		if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
-			colorEcho $BLUE "Snell 端口: ${PORT}"
-			echo ""
-		else
-			colorEcho $RED "输入错误, 请输入正确的端口。"
-			echo ""
-			exit 1
-		fi
+    read -p $'请输入 Snell 端口 [1-65535]: ' PORT
+    echo $((${PORT}+0)) &>/dev/null
+    if [[ $? -eq 0 ]]; then
+	if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
+		colorEcho $BLUE "Snell 端口: ${PORT}"
+		echo ""
 	else
-		colorEcho $RED "输入错误, 请输入数字。"
+		colorEcho $RED "输入错误, 请输入正确的端口。"
 		echo ""
 		exit 1
 	fi
-	read -p $'请输入 ShadowTLS 端口 [1-65535]\n(默认: 9999，回车): ' SPORT
-	[[ -z "${SPORT}" ]] && SPORT="9999"
-	echo $((${SPORT}+0)) &>/dev/null
-	if [[ $? -eq 0 ]]; then
-		if [[ ${SPORT} -ge 1 ]] && [[ ${SPORT} -le 65535 ]]; then
-			colorEcho $BLUE "端口: ${SPORT}"
-			echo ""
-		else
-			colorEcho $RED "输入错误, 请输入正确的端口。"
-			echo ""
-			exit 1
-		fi
+    else
+	colorEcho $RED "输入错误, 请输入数字。"
+	echo ""
+	exit 1
+    fi
+    read -p $'请输入 ShadowTLS 端口 [1-65535]\n(默认: 9999，回车): ' SPORT
+    [[ -z "${SPORT}" ]] && SPORT="9999"
+    echo $((${SPORT}+0)) &>/dev/null
+    if [[ $? -eq 0 ]]; then
+	if [[ ${SPORT} -ge 1 ]] && [[ ${SPORT} -le 65535 ]]; then
+		colorEcho $BLUE "端口: ${SPORT}"
+		echo ""
 	else
-		colorEcho $RED "输入错误, 请输入数字。"
+		colorEcho $RED "输入错误, 请输入正确的端口。"
 		echo ""
 		exit 1
 	fi
+    else
+	colorEcho $RED "输入错误, 请输入数字。"
+	echo ""
+	exit 1
+    fi
 }
 
 Set_domain() {
-	 for ((i=1;i<=${#domains[@]};i++ )); do
- 		hint="${domains[$i-1]}"
- 		echo -e "${GREEN}${i}${PLAIN}) ${hint}"
- 	done
-	read -p "请选择域名[1-4] (默认: ${domains[0]}):" pick
-	[ -z "$pick" ] && pick=1
-	expr ${pick} + 1 &>/dev/null
-	if [ $? -ne 0 ]; then
-		colorEcho $RED "错误, 请输入正确选项"
-		continue
-	fi
-	if [[ "$pick" -lt 1 || "$pick" -gt ${#domains[@]} ]]; then
-		echo -e "${red}错误, 请输入正确选项${plain}"
-		exit 0
-	fi
-	DOMAIN=${domains[$pick-1]}
-	if [[ "$pick" = "4" ]]; then
-		colorEcho $BLUE "已选择: ${domains[$pick-1]}"
+    for ((i=1;i<=${#domains[@]};i++ )); do
+ 	hint="${domains[$i-1]}"
+ 	echo -e "${GREEN}${i}${PLAIN}) ${hint}"
+    done
+    read -p "请选择域名[1-4] (默认: ${domains[0]}):" pick
+    [ -z "$pick" ] && pick=1
+    expr ${pick} + 1 &>/dev/null
+    if [ $? -ne 0 ]; then
+	colorEcho $RED "错误, 请输入正确选项"
+	continue
+    fi
+    if [[ "$pick" -lt 1 || "$pick" -gt ${#domains[@]} ]]; then
+	echo -e "${red}错误, 请输入正确选项${plain}"
+	exit 0
+    fi
+    DOMAIN=${domains[$pick-1]}
+    if [[ "$pick" = "4" ]]; then
+	colorEcho $BLUE "已选择: ${domains[$pick-1]}"
+	echo ""
+	read -p $'请输入自定义域名: ' DOMAIN
+	if [[ -z "${DOMAIN}" ]]; then
+		colorEcho $RED "错误, 请输入正确的域名"
 		echo ""
-		read -p $'请输入自定义域名: ' DOMAIN
-		if [[ -z "${DOMAIN}" ]]; then
-			colorEcho $RED "错误, 请输入正确的域名"
-			echo ""
-			exit 1
-		else
-			colorEcho $BLUE "域名：$DOMAIN"
-			echo ""
-		fi
+		exit 1
 	else
-		colorEcho $BLUE "域名：${domains[$pick-1]}"
+		colorEcho $BLUE "域名：$DOMAIN"
 		echo ""
 	fi
+    else
+	colorEcho $BLUE "域名：${domains[$pick-1]}"
+	echo ""
+    fi
 }
 
 Set_pass() {
-	read -p $'请设置ShadowTLS的密码\n(默认随机生成, 回车): ' PASS
-	[[ -z "$PASS" ]] && PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`
-	colorEcho $BLUE " 密码：$PASS"
-	echo ""
+    read -p $'请设置ShadowTLS的密码\n(默认随机生成, 回车): ' PASS
+    [[ -z "$PASS" ]] && PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`
+    colorEcho $BLUE " 密码：$PASS"
+    echo ""
 }
 
 Write_config(){
-	cat > ${snell_conf}<<-EOF
+    cat > ${snell_conf}<<-EOF
 [snell-server]
 listen = ${LIP}:${PORT}
 psk = ${PSK}
@@ -494,156 +487,156 @@ EOF
 }
 
 Install_snell(){
-	Install_dependency
-	selectversion
-	Generate_conf
-	Install_stls
-	ShowInfo
+    Install_dependency
+    selectversion
+    Generate_conf
+    Install_stls
+    ShowInfo
 }
 
 Install_stls() {
-	read -p $'是否安装ShadowTls？[y/n]\n(默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		colorEcho $BLUE "安装ShadowTls"
-		echo ""
-		Generate_stls
-		Download_snell
-		Write_config
-		Deploy_snell
-		Download_stls
-		Deploy_stls
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		colorEcho $BLUE "不安装ShadowTls"
-		echo ""
-		Download_snell
-		Write_config
-		Deploy_snell
-	else
-		colorEcho $RED " 输入错误, 请输入[y/n]。"
-		echo ""
-		exit 1
-	fi
+    read -p $'是否安装ShadowTls？[y/n]\n(默认n, 回车): ' answer
+    if [[ "${answer}" = "y" ]]; then
+	colorEcho $BLUE "安装ShadowTls"
+	echo ""
+	Generate_stls
+	Download_snell
+	Write_config
+	Deploy_snell
+	Download_stls
+	Deploy_stls
+    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+	colorEcho $BLUE "不安装ShadowTls"
+	echo ""
+	Download_snell
+	Write_config
+	Deploy_snell
+    else
+	colorEcho $RED " 输入错误, 请输入[y/n]。"
+	echo ""
+	exit 1
+    fi
 }
 
 Restart_snell(){
-	systemctl restart snell
-	colorEcho $BLUE " Snell已启动"
+    systemctl restart snell
+    colorEcho $BLUE " Snell已启动"
 }
 
 Restart_stls(){
-	systemctl restart shadowtls
-	colorEcho $BLUE " ShadowTls已重启"
+    systemctl restart shadowtls
+    colorEcho $BLUE " ShadowTls已重启"
 }
 
 Stop_snell(){
-	systemctl stop snell
-	colorEcho $BLUE " Snell已停止"
+    systemctl stop snell
+    colorEcho $BLUE " Snell已停止"
 }
 
 Uninstall_snell(){
-	read -p $' 是否卸载Snell？[y/n]\n (默认n, 回车): ' answer
-	if [[ "${answer}" = "y" ]]; then
-		if [[ -f "$stls_conf" ]]; then
-			systemctl stop snell shadowtls
-			systemctl disable snell shadowtls >/dev/null 2>&1
-			rm -rf /etc/systemd/system/snell.service
-			rm -rf /etc/systemd/system/shadowtls.service
-			rm -rf /etc/snell
-			systemctl daemon-reload
-			colorEcho $BLUE " Snell已经卸载完毕"
-		else
-			systemctl stop snell
-			systemctl disable snell >/dev/null 2>&1
-			rm -rf /etc/systemd/system/snell.service
-			rm -rf /etc/snell
-			systemctl daemon-reload
-			colorEcho $BLUE " Snell已经卸载完毕"
-		fi
-	elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
-		colorEcho $BLUE " 取消卸载"
+    read -p $' 是否卸载Snell？[y/n]\n (默认n, 回车): ' answer
+    if [[ "${answer}" = "y" ]]; then
+	if [[ -f "$stls_conf" ]]; then
+		systemctl stop snell shadowtls
+		systemctl disable snell shadowtls >/dev/null 2>&1
+		rm -rf /etc/systemd/system/snell.service
+		rm -rf /etc/systemd/system/shadowtls.service
+		rm -rf /etc/snell
+		systemctl daemon-reload
+		colorEcho $BLUE " Snell已经卸载完毕"
 	else
-		colorEcho $RED " 输入错误, 请输入[y/n]。"
-		exit 1
+		systemctl stop snell
+		systemctl disable snell >/dev/null 2>&1
+		rm -rf /etc/systemd/system/snell.service
+		rm -rf /etc/snell
+		systemctl daemon-reload
+		colorEcho $BLUE " Snell已经卸载完毕"
 	fi
+    elif [[ "${answer}" = "n" || -z "${answer}" ]]; then
+	colorEcho $BLUE " 取消卸载"
+    else
+	colorEcho $RED " 输入错误, 请输入[y/n]。"
+	exit 1
+    fi
 }
 
 ShowInfo() {
+    echo ""
+    echo -e " ${BLUE}Snell配置文件: ${PLAIN} ${RED}${snell_conf}${PLAIN}"
+    colorEcho $BLUE " Snell配置信息："
+    GetConfig
+    outputSnell
+    if [[ -f $stls_conf ]]; then
+	GetConfig_stls
+	outputSTLS
 	echo ""
-	echo -e " ${BLUE}Snell配置文件: ${PLAIN} ${RED}${snell_conf}${PLAIN}"
-	colorEcho $BLUE " Snell配置信息："
-	GetConfig
-	outputSnell
-	if [[ -f $stls_conf ]]; then
-		GetConfig_stls
-		outputSTLS
-		echo ""
-		echo -e " ${BLUE}若要使用ShadowTls, 请将${PLAIN}${RED} 端口 ${PLAIN}${BLUE}替换为${PLAIN}${RED} ${sport} ${PLAIN}"
-	fi
+	echo -e " ${BLUE}若要使用ShadowTls, 请将${PLAIN}${RED} 端口 ${PLAIN}${BLUE}替换为${PLAIN}${RED} ${sport} ${PLAIN}"
+    fi
 }
 
 GetConfig() {
-	port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
-	if [[ -z "${port}" ]]; then
-		port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
-	fi
-	psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
-	ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-	if [[ $ipv6 == "true" ]]; then
-		IP=${IP6}
-	else
-		IP=${IP4}
-	fi
-	obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
-	tfo=`grep tfo ${snell_conf} | awk -F '= ' '{print $2}'`
-	ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
+    port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f2`
+    if [[ -z "${port}" ]]; then
+	port=`grep listen ${snell_conf} | awk -F '=' '{print $2}' | cut -d: -f4`
+    fi
+    psk=`grep psk ${snell_conf} | awk -F '= ' '{print $2}'`
+    ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ $ipv6 == "true" ]]; then
+	IP=${IP6}
+    else
+	IP=${IP4}
+    fi
+    obfs=`grep obfs ${snell_conf} | awk -F '= ' '{print $2}'`
+    tfo=`grep tfo ${snell_conf} | awk -F '= ' '{print $2}'`
+    ver=`grep '#' ${snell_conf} | awk -F '# ' '{print $2}'`
 }
 
 GetConfig_stls() {
-	SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-	if [[ "$SSV6" = "true" ]]; then
-		sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
-	else
-		sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
-	fi
-	pass=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
-	domain=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
+    SSV6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
+    if [[ "$SSV6" = "true" ]]; then
+	sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f4`
+    else
+	sport=`grep listen ${stls_conf} | cut -d- -f7 | cut -d: -f2`
+    fi
+    pass=`grep password ${stls_conf} | cut -d- -f13 | cut -d " " -f 2`
+    domain=`grep password ${stls_conf} | cut -d- -f11 | cut -d " " -f 2`
 }
 
 outputSnell() {
-	echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
-	echo -e "   ${BLUE}地址(IP): ${PLAIN} ${RED}${IP}${PLAIN}"
-	echo -e "   ${BLUE}Snell端口(PORT)：${PLAIN} ${RED}${port}${PLAIN}"
-	echo -e "   ${BLUE}Snell密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
-	echo -e "   ${BLUE}IPV6：${PLAIN} ${RED}${ipv6}${PLAIN}"
-	echo -e "   ${BLUE}混淆(OBFS)：${PLAIN} ${RED}${obfs}${PLAIN}"
-	echo -e "   ${BLUE}TCP记忆(TFO)：${PLAIN} ${RED}${tfo}${PLAIN}"
-	echo -e "   ${BLUE}Snell版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
+    echo -e "   ${BLUE}协议: ${PLAIN} ${RED}snell${PLAIN}"
+    echo -e "   ${BLUE}地址(IP): ${PLAIN} ${RED}${IP}${PLAIN}"
+    echo -e "   ${BLUE}Snell端口(PORT)：${PLAIN} ${RED}${port}${PLAIN}"
+    echo -e "   ${BLUE}Snell密钥(PSK)：${PLAIN} ${RED}${psk}${PLAIN}"
+    echo -e "   ${BLUE}IPV6：${PLAIN} ${RED}${ipv6}${PLAIN}"
+    echo -e "   ${BLUE}混淆(OBFS)：${PLAIN} ${RED}${obfs}${PLAIN}"
+    echo -e "   ${BLUE}TCP记忆(TFO)：${PLAIN} ${RED}${tfo}${PLAIN}"
+    echo -e "   ${BLUE}Snell版本(VER)：${PLAIN} ${RED}${ver}${PLAIN}"
 }
 
 outputSTLS() {
-	echo -e "   ${BLUE}ShadowTls端口(PORT)：${PLAIN} ${RED}${sport}${PLAIN}"
-	echo -e "   ${BLUE}ShadowTls密码(PASS)：${PLAIN} ${RED}${pass}${PLAIN}"
-	echo -e "   ${BLUE}ShadowTls域名(DOMAIN)：${PLAIN} ${RED}${domain}${PLAIN}"
-	echo -e "   ${BLUE}ShadowTls版本(VER)：${PLAIN} ${RED}v3${PLAIN}"
+    echo -e "   ${BLUE}ShadowTls端口(PORT)：${PLAIN} ${RED}${sport}${PLAIN}"
+    echo -e "   ${BLUE}ShadowTls密码(PASS)：${PLAIN} ${RED}${pass}${PLAIN}"
+    echo -e "   ${BLUE}ShadowTls域名(DOMAIN)：${PLAIN} ${RED}${domain}${PLAIN}"
+    echo -e "   ${BLUE}ShadowTls版本(VER)：${PLAIN} ${RED}v3${PLAIN}"
 }
 
 Change_snell(){
-	colorEcho $BLUE " 修改 Snell 配置信息"
-	selectversion
-	Generate_conf
-	Write_config
-	systemctl restart snell
-	colorEcho $BLUE " 修改配置成功"
-	ShowInfo
+    colorEcho $BLUE " 修改 Snell 配置信息"
+    selectversion
+    Generate_conf
+    Write_config
+    systemctl restart snell
+    colorEcho $BLUE " 修改配置成功"
+    ShowInfo
 }
 
 Change_stls() {
-	colorEcho $BLUE " 修改 ShadowTLS 配置信息"
-	echo ""
-	Generate_stls
-	Deploy_stls
-	colorEcho $BLUE " 修改配置成功"
-	ShowInfo
+    colorEcho $BLUE " 修改 ShadowTLS 配置信息"
+    echo ""
+    Generate_stls
+    Deploy_stls
+    colorEcho $BLUE " 修改配置成功"
+    ShowInfo
 }
 
 checkSystem
