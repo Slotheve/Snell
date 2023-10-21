@@ -172,6 +172,8 @@ Install_dependency(){
 	apt install unzip wget -y >/dev/null 2>&1
 	echo ""
     fi
+    echo "net.ipv4.tcp_fastopen=3" >> /etc/sysctl.conf
+    sysctl -p >/dev/null 2>&1
 }
 
 selectversion() {
