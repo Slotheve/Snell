@@ -185,7 +185,7 @@ selectversion() {
     expr ${pick} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
 	colorEcho $RED "错误, 请选择[1-4]"
-	continue
+	selectversion
     fi
     if [[ "$pick" -lt 1 || "$pick" -gt ${#versions[@]} ]]; then
 	colorEcho $RED "错误, 请选择[1-4]"
@@ -197,6 +197,9 @@ selectversion() {
     else
 	VER="v3.0.1"
     fi
+}
+
+show_version() {
     colorEcho $BLUE "版本: ${vers}"
     echo ""
 }
@@ -225,9 +228,11 @@ Download_stls() {
 }
 
 Generate_conf(){
+    show_version
     Set_V6
     Set_port
     Set_psk
+    show_psk
     Set_obfs
     Set_tfo
 }
@@ -236,6 +241,7 @@ Generate_stls() {
     Decide_sv6
     Set_sport
     Set_domain
+    show_domain
     Set_pass
 }
 
@@ -335,6 +341,9 @@ Set_psk(){
 	colorEcho $RED "请输入正确的密匙（31位字符）。"
 	Set_psk
     fi
+}
+
+show_psk() {
     colorEcho $BLUE "PSK: ${PSK}"
     echo ""
 }
@@ -383,29 +392,14 @@ Set_tfo(){
 }
 
 Decide_sv6() {
-    ipv6=`grep ipv6 ${snell_conf} | awk -F '= ' '{print $2}'`
-    if [[ "${ipv6}" = "true" ]]; then
+    if [[ "${V6}" = "true" ]]; then
 	SV6="::0"
-    elif [[ "${ipv6}" = "false" ]]; then
+    elif [[ "${V6}" = "false" ]]; then
 	SV6="0.0.0.0"
     fi
 }
 
 Set_sport() {
-    read -p $'请输入 Snell 端口 [1-65535]: ' PORT
-    echo $((${PORT}+0)) &>/dev/null
-    if [[ $? -eq 0 ]]; then
-	if [[ ${PORT} -ge 1 ]] && [[ ${PORT} -le 65535 ]]; then
-		colorEcho $BLUE "Snell 端口: ${PORT}"
-		echo ""
-	else
-		colorEcho $RED "输入错误, 请输入正确的端口。"
-		Set_sport
-	fi
-    else
-	colorEcho $RED "输入错误, 请输入数字。"
-	Set_sport
-    fi
     read -p $'请输入 ShadowTLS 端口 [1-65535]\n(默认: 9999，回车): ' SPORT
     [[ -z "${SPORT}" ]] && SPORT="9999"
     echo $((${SPORT}+0)) &>/dev/null
@@ -451,10 +445,12 @@ Set_domain() {
 		colorEcho $BLUE "域名：$DOMAIN"
 		echo ""
 	fi
-    else
+    fi
+}
+
+show_domain() {
 	colorEcho $BLUE "域名：${domains[$pick-1]}"
 	echo ""
-    fi
 }
 
 Set_pass() {
@@ -643,12 +639,12 @@ menu() {
 	echo -e "  ${GREEN}2.${PLAIN}  ${RED}卸载Snell${PLAIN}"
 	echo " ----------------------"
 	echo -e "  ${GREEN}3.${PLAIN}  重启Snell"
-	echo -e "  ${GREEN}4.${PLAIN}  重启ShadowTls"
+	echo -e "  ${GREEN}4.${PLAIN} 重启ShadowTls"
 	echo -e "  ${GREEN}5.${PLAIN}  停止Snell"
 	echo " ----------------------"
 	echo -e "  ${GREEN}6.${PLAIN}  查看Snell配置"
 	echo -e "  ${GREEN}7.${PLAIN}  修改Snell配置"
-	echo -e "  ${GREEN}8.${PLAIN}  修改ShadowTLS配置"
+	echo -e "  ${GREEN}8.${PLAIN} 修改ShadowTLS配置"
 	echo " ----------------------"
 	echo -e "  ${GREEN}0.${PLAIN}  退出"
 	echo ""
