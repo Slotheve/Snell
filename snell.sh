@@ -549,7 +549,7 @@ Uninstall_snell(){
 }
 
 ShowInfo() {
-    if [[ ! -f $stls_conf ]]; then
+    if [[ ! -f $snell_conf ]]; then
 	colorEcho $RED " Snell未安装"
  	exit 1
     fi
