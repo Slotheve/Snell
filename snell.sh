@@ -269,6 +269,8 @@ EOF
     systemctl daemon-reload
     systemctl enable snell
     systemctl restart snell
+    echo "net.ipv4.tcp_fastopen = 3" >> /etc/sysctl.conf
+    sysctl -p
 }
 
 Deploy_stls() {
