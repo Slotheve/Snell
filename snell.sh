@@ -194,7 +194,7 @@ selectversion() {
     fi
     vers=${versions[$pick-1]}
     if [[ "$pick" = "4" ]]; then
-	VER="v4.0.1"
+	VER="v4.1.1"
     else
 	VER="v3.0.1"
     fi
