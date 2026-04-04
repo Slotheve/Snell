@@ -22,6 +22,7 @@ v1
 v2
 v3
 v4
+v5
 )
 
 domains=(
@@ -181,20 +182,20 @@ selectversion() {
  	hint="${versions[$i-1]}"
  	echo -e "${GREEN}${i}${PLAIN}) ${hint}"
     done
-    read -p "请选择版本[1-4] (默认: ${versions[3]}):" pick
-    [ -z "$pick" ] && pick=4
+    read -p "请选择版本[1-5] (默认: ${versions[4]}):" pick
+    [ -z "$pick" ] && pick=5
     expr ${pick} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
-	colorEcho $RED "错误, 请选择[1-4]"
+	colorEcho $RED "错误, 请选择[1-5]"
 	selectversion
     fi
     if [[ "$pick" -lt 1 || "$pick" -gt ${#versions[@]} ]]; then
-	colorEcho $RED "错误, 请选择[1-4]"
+	colorEcho $RED "错误, 请选择[1-5]"
 	selectversion
     fi
     vers=${versions[$pick-1]}
-    if [[ "$pick" = "4" ]]; then
-	VER="v4.1.1"
+    if [[ "$pick" = "4" || "$pick" = "5" ]]; then
+	VER="v5.0.1"
     else
 	VER="v3.0.1"
     fi
